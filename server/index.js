@@ -1,4 +1,3 @@
-// server/index.js
 require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
@@ -6,6 +5,9 @@ const cors = require("cors");
 const fetch = require("node-fetch"); // v2.x for CommonJS
 const fs = require("fs");
 const path = require("path");
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const pipelineAsync = promisify(pipeline);
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -13,20 +15,28 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json());
 
+// serve static models folder
+const MODELS_DIR = path.join(__dirname, "models");
+if (!fs.existsSync(MODELS_DIR)) fs.mkdirSync(MODELS_DIR, { recursive: true });
+app.use("/models", express.static(MODELS_DIR));
+
 // Simple health check
 app.get("/", (_req, res) => {
   res.send("OK: backend running. Use POST /api/image-to-3d");
 });
 
-// Log key presence without leaking it
+// Log key presence (don't print the key itself)
 console.log("Has MESHY_API_KEY:", !!process.env.MESHY_API_KEY);
 
-// Create a Meshy Image-to-3D task
+// POST /api/image-to-3d
 app.post("/api/image-to-3d", upload.single("image"), async (req, res) => {
   try {
+    if (!process.env.MESHY_API_KEY) {
+      return res.status(500).json({ error: "MESHY_API_KEY not configured" });
+    }
+
     if (!req.file) return res.status(400).json({ error: "no file" });
 
-    // Recommend JPG/PNG; WEBP may fail
     const mime = (req.file.mimetype || "").toLowerCase();
     if (!/jpe?g|png/.test(mime)) {
       return res.status(415).json({ error: "Please upload JPG/PNG (WEBP may be unsupported)" });
@@ -43,9 +53,6 @@ app.post("/api/image-to-3d", upload.single("image"), async (req, res) => {
       },
       body: JSON.stringify({
         image_url: dataUri,
-        // Minimal params; extend as needed:
-        // title: "My 3D from Image",
-        // enable_pbr: true,
       }),
     });
 
@@ -59,7 +66,9 @@ app.post("/api/image-to-3d", upload.single("image"), async (req, res) => {
     try {
       const j = JSON.parse(text);
       taskId = j.result || j.id || j.task_id || j.taskId;
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Create response not JSON:", e.message);
+    }
 
     if (!taskId) {
       return res.status(500).json({ error: "Task created but no task id returned" });
@@ -72,14 +81,13 @@ app.post("/api/image-to-3d", upload.single("image"), async (req, res) => {
   }
 });
 
-// Static hosting for downloaded models
-const MODELS_DIR = path.join(__dirname, "models");
-if (!fs.existsSync(MODELS_DIR)) fs.mkdirSync(MODELS_DIR);
-app.use("/models", express.static(MODELS_DIR));
-
-// Poll task status; when done, download GLB/USDZ locally and return local URLs
+// GET /api/image-to-3d/:taskId
 app.get("/api/image-to-3d/:taskId", async (req, res) => {
   try {
+    if (!process.env.MESHY_API_KEY) {
+      return res.status(500).json({ error: "MESHY_API_KEY not configured" });
+    }
+
     const url = `https://api.meshy.ai/openapi/v1/image-to-3d/${encodeURIComponent(req.params.taskId)}`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${process.env.MESHY_API_KEY}` } });
     const text = await r.text();
@@ -91,14 +99,11 @@ app.get("/api/image-to-3d/:taskId", async (req, res) => {
 
     const j = JSON.parse(text);
 
-    // Normalized fields across possible variants
     const status = j.status || j.task_status;
     const progress = j.progress ?? j.task_progress ?? 0;
     const urls = j.model_urls || j.result || {};
 
     if (status === "SUCCEEDED" && (urls.glb || urls.usdz)) {
-      const port = process.env.PORT || 3000;
-
       // Download GLB
       let localGlb = null;
       if (urls.glb) {
@@ -106,8 +111,11 @@ app.get("/api/image-to-3d/:taskId", async (req, res) => {
           const glbResp = await fetch(urls.glb);
           if (!glbResp.ok) throw new Error(`GLB download HTTP ${glbResp.status}`);
           const outPath = path.join(MODELS_DIR, `${req.params.taskId}.glb`);
-          await streamToFile(glbResp.body, outPath);
-          localGlb = `http://localhost:${port}/models/${req.params.taskId}.glb`;
+          // use pipeline for robust streaming
+          await pipelineAsync(glbResp.body, fs.createWriteStream(outPath));
+          // Use request host/protocol so the returned URL is externally reachable
+          const externalBase = `${req.protocol}://${req.get('host')}`;
+          localGlb = `${externalBase}/models/${req.params.taskId}.glb`;
         } catch (e) {
           console.error("GLB download failed:", e.message);
         }
@@ -118,11 +126,11 @@ app.get("/api/image-to-3d/:taskId", async (req, res) => {
       if (urls.usdz) {
         try {
           const uResp = await fetch(urls.usdz);
-          if (uResp.ok) {
-            const upath = path.join(MODELS_DIR, `${req.params.taskId}.usdz`);
-            await streamToFile(uResp.body, upath);
-            localUsdz = `http://localhost:${port}/models/${req.params.taskId}.usdz`;
-          }
+          if (!uResp.ok) throw new Error(`USDZ download HTTP ${uResp.status}`);
+          const upath = path.join(MODELS_DIR, `${req.params.taskId}.usdz`);
+          await pipelineAsync(uResp.body, fs.createWriteStream(upath));
+          const externalBase = `${req.protocol}://${req.get('host')}`;
+          localUsdz = `${externalBase}/models/${req.params.taskId}.usdz`;
         } catch (e) {
           console.error("USDZ download failed:", e.message);
         }
@@ -143,14 +151,10 @@ app.get("/api/image-to-3d/:taskId", async (req, res) => {
   }
 });
 
-function streamToFile(readable, filePath){
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(filePath);
-    readable.pipe(file);
-    file.on("finish", resolve);
-    file.on("error", reject);
-  });
-}
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log("✅ Server running at http://localhost:" + port));
+const port = parseInt(process.env.PORT, 10) || 3000;
+const host = '0.0.0.0';
+app.listen(port, host, () => {
+  console.log(`✅ Server listening on ${host}:${port}`);
+  console.log(`process.env.PORT = ${process.env.PORT}`);
+  console.log("NOTE: Use the Railway-provided domain (not localhost) to access this service from the internet.");
+});
