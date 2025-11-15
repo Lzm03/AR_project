@@ -1,9 +1,9 @@
 {
-  "name": "mono-root-stub",
+  "name": "ar-root",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd server && npm ci --only=production || npm install --production",
+    "postinstall": "cd server && npm ci --only=production",
     "start": "node server/index.js"
   }
 }
