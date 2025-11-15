@@ -1,0 +1,9 @@
+{
+  "name": "mono-root-stub",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd server && npm ci --only=production || npm install --production",
+    "start": "node server/index.js"
+  }
+}
