@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <title>Chop Reality — Image → 3D → AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.158.0/build/three.module.js";
+    window.__THREE__ = THREE;
+  </script>
+  <style>
+    :root{
+      --bg:#f7f7fb; --ink:#0b0b0d; --muted:#8b8ba0; --card:#ffffff; --border:rgba(15,15,18,0.06);
+      --accent:#6f4cff; --accent-2:#a77bff; --purple:#6d4cff;
+      --radius:26px; --shadow:0 8px 30px rgba(16,16,20,0.08);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial;color:var(--ink);background:linear-gradient(180deg,#fbfbff 0%,#f0f0f8 100%);}
+    .device{max-width:1280px;margin:22px auto;border-radius:34px;border:8px solid #000;padding:18px;background:linear-gradient(180deg,#fff,#faf6ff);box-shadow:0 20px 60px rgba(16,16,20,0.12)}
+    .topbar{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:18px;background:var(--card);box-shadow:var(--shadow);border:1px solid var(--border)}
+    .brand{display:flex;align-items:center;gap:14px;font-weight:800}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 20px rgba(107,76,255,0.18)}
+    .project{color:var(--muted);font-weight:600}
+    .center-actions{margin-left:auto;margin-right:auto;display:flex;align-items:center;gap:10px}
+    .publish-pill{background:linear-gradient(180deg,var(--purple),#8b6bff);color:white;padding:10px 26px;border-radius:26px;font-weight:800;box-shadow:0 8px 30px rgba(109,76,255,0.18);border:none}
+    .right-hint{color:var(--muted);font-weight:600}
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:18px;margin-top:18px}
+    .library{background:var(--card);border-radius:20px;padding:14px;border:1px solid var(--border);height:calc(100vh - 140px);overflow:auto;box-shadow:var(--shadow)}
+    .lib-title{font-weight:700;margin-bottom:8px}
+    .thumbs{display:flex;flex-direction:column;gap:12px}
+    .thumb{background:#f6f7fb;border-radius:14px;padding:10px;border:1px solid rgba(16,16,20,0.03);display:flex;align-items:center;gap:12px;cursor:pointer}
+    .thumb img{width:100%;height:110px;object-fit:cover;border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)}
+    .main{display:flex;flex-direction:column;gap:12px}
+    .viewer-card{background:var(--card);border-radius:20px;padding:16px;border:1px solid var(--border);box-shadow:var(--shadow)}
+    model-viewer{width:100%;height:min(64vh,560px);border-radius:14px;background:#0f1114;display:block}
+    .image-preview{width:260px;height:160px;border-radius:12px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .image-preview img{max-width:100%;max-height:100%;object-fit:contain}
+
+    /* NODE AREA layout — left-aligned so node library/motion/materials shift left together */
+    .node-area{background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(250,248,255,0.95));border-radius:18px;padding:14px;border:1px solid var(--border);display:flex;align-items:flex-start;gap:20px;justify-content:flex-start}
+    .node-left{width:120px;padding:8px}
+    .node-canvas{flex:1;height:120px;border-radius:14px;background:#fff;border:1px dashed rgba(10,10,14,0.04);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+    /* controls container is not pushed to extreme right — sits next to node canvas */
+    .node-controls{display:flex;gap:14px;align-items:flex-start}
+    .control-card{background:white;padding:12px;border-radius:12px;border:1px solid var(--border);box-shadow:0 6px 20px rgba(16,16,20,0.04);min-width:0}
+    .control-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .small{font-size:13px;color:var(--muted)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+
+    /* === 苹果风格按钮 (frosted, rounded, subtle) === */
+    .apple-btn{
+      -webkit-appearance:none; appearance:none; border:0; cursor:pointer;
+      padding:8px 12px; border-radius:14px; font-weight:700; font-size:13px; color:var(--purple);
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+      box-shadow: 0 8px 18px rgba(15,15,20,0.07), inset 0 1px 0 rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px) saturate(120%);
+      transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .apple-btn:hover{
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.82));
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(15,15,20,0.10);
+    }
+      -webkit-appearance:none; appearance:none; border:0; cursor:pointer;
+      padding:8px 12px; border-radius:14px; font-weight:700; font-size:13px; color:var(--purple);
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+      box-shadow: 0 8px 18px rgba(15,15,20,0.07), inset 0 1px 0 rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px) saturate(120%);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .apple-btn:active{ transform: translateY(1px) scale(0.995); }
+    .apple-btn:focus{ outline:none; box-shadow: 0 10px 30px rgba(109,76,255,0.12), 0 0 0 6px color-mix(in oklab, var(--purple), white 85%); }
+    .apple-btn[disabled]{ opacity:0.55; cursor:not-allowed; transform:none; }
+
+    /* small preset pills (subtle stroke) */
+    .preset-btn{
+      padding:6px 10px; border-radius:10px; font-weight:700; font-size:13px; color:var(--purple);
+      background: linear-gradient(180deg, rgba(245,245,250,0.9), rgba(250,250,255,0.95));
+      border:1px solid rgba(16,16,20,0.06); box-shadow: 0 4px 10px rgba(16,16,20,0.03);
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .preset-btn:hover{
+      background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,0.92));
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(16,16,20,0.06);
+    }
+      padding:6px 10px; border-radius:10px; font-weight:700; font-size:13px; color:var(--purple);
+      background: linear-gradient(180deg, rgba(245,245,250,0.9), rgba(250,250,255,0.95));
+      border:1px solid rgba(16,16,20,0.06); box-shadow: 0 4px 10px rgba(16,16,20,0.03);
+    }
+    .preset-btn:active{ transform: translateY(1px); }
+
+    /* Materials panel boxed and constrained */
+    .materials-panel{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:12px;background:white;border:1px solid var(--border);box-shadow:0 8px 30px rgba(16,16,20,0.06);min-width:220px;max-width:320px}
+    .materials-panel .title{font-weight:700;margin-bottom:4px}
+    .materials-panel .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .color-box{width:72px;height:36px;border-radius:8px;border:2px solid rgba(0,0,0,0.06);display:inline-block;vertical-align:middle;overflow:hidden}
+    .color-box input{width:100%;height:100%;border:none;padding:0;margin:0;background:transparent;cursor:pointer}
+    .slider{flex:1}
+
+    .btn-ghost{background:transparent;border:1px solid var(--border);padding:8px 10px;border-radius:10px;cursor:pointer}
+    @media (max-width:980px){ .layout{grid-template-columns:1fr} .library{height:auto} }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <header class="topbar">
+      <div class="brand"><div class="logo"></div><div>Chop Reality</div><div class="project small">AR Project ▾</div></div>
+      <div class="center-actions"><button class="publish-pill" id="publishBtn">Publish</button></div>
+      <div class="right-hint"><button id="genBtn" style="background:none;border:0;font-weight:700;color:var(--purple);cursor:pointer">AI • Generative AI ▾</button></div>
+    </header>
+
+    <div class="layout">
+      <aside class="library">
+        <div class="lib-title">Library</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="small">Saved AR</div><div><button id="importBtn" class="apple-btn">Import</button> <button id="clearLib" class="apple-btn">Clear</button></div></div>
+        <div class="thumbs" id="libList"></div>
+      </aside>
+
+      <main class="main">
+        <section class="viewer-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div class="small">Preview</div>
+              <div class="image-preview" id="imagePreview" style="display:none"><img id="imgPreviewEl" alt="preview"/></div>
+            </div>
+
+            <div class="top-actions">
+              <input id="fileAll" type="file" accept="image/*,.glb,.gltf,.usdz,model/gltf-binary,model/gltf+json,model/vnd.usdz+zip" style="display:none">
+              <span class="small" id="fileMeta">No file selected</span>
+              <button id="saveBtn" class="apple-btn" disabled>Save</button>
+            </div>
+          </div>
+
+          <model-viewer id="mv" ar ar-modes="webxr scene-viewer quick-look" camera-controls environment-image="neutral" exposure="1.0" shadow-intensity="0.3"></model-viewer>
+          <div style="margin-top:8px;color:var(--muted);font-size:13px" id="status">Ready</div>
+        </section>
+
+        <section class="node-area">
+          <div class="node-left">
+            <div class="small" style="margin-bottom:8px">Library</div>
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 18px rgba(107,76,255,0.18)"></div>
+          </div>
+
+          <div class="node-canvas" id="nodeCanvas">Node Library (placeholder)</div>
+
+          <div class="node-controls">
+            <div class="control-card" style="min-width:160px;">
+              <div style="font-weight:700;margin-bottom:6px">Motion Presets</div>
+              <div class="control-row"><button class="preset-btn" id="spinBtn">Spin</button><button class="preset-btn" id="floatBtn">Float</button><button class="preset-btn" id="pulseBtn">Pulse</button><button class="preset-btn" id="stopMotionBtn">Stop</button></div>
+            </div>
+
+            <div class="materials-panel">
+              <div class="title">Materials</div>
+              <div class="row"><div class="small">Color</div><div class="color-box"><input id="tintPicker" type="color" value="#ffffff"/></div></div>
+              <div class="row"><div class="small">Metallic</div><input id="metalRange" class="slider" type="range" min="0" max="1" step="0.01" value="0.2"></div>
+              <div class="row"><div class="small">Roughness</div><input id="roughRange" class="slider" type="range" min="0" max="1" step="0.01" value="0.6"></div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000'; // backend base
+
+    // Elements
+    const publishBtn = document.getElementById('publishBtn');
+    const genBtn = document.getElementById('genBtn');
+    const fileAll = document.getElementById('fileAll');
+    const mv = document.getElementById('mv');
+    const status = document.getElementById('status');
+    const libList = document.getElementById('libList');
+    const importBtn = document.getElementById('importBtn');
+    const clearLib = document.getElementById('clearLib');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // controls
+    const spinBtn = document.getElementById('spinBtn');
+    const floatBtn = document.getElementById('floatBtn');
+    const pulseBtn = document.getElementById('pulseBtn');
+    const stopMotionBtn = document.getElementById('stopMotionBtn');
+    const tintPicker = document.getElementById('tintPicker');
+    const metalRange = document.getElementById('metalRange');
+    const roughRange = document.getElementById('roughRange');
+    const imagePreview = document.getElementById('imagePreview');
+    const imgPreviewEl = document.getElementById('imgPreviewEl');
+
+    // state
+    let fileSelected = null; // {file, name, size, isImage}
+    let library = JSON.parse(localStorage.getItem('cr_library')||'[]');
+    let animRaf = null, preset='none', t0=0;
+    let modelObjectUrl = null, imageObjectUrl = null;
+
+    function formatSize(bytes){ if(bytes<1024) return bytes+' B'; if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB'; return (bytes/1024/1024).toFixed(2)+' MB'; }
+
+    // render library (shows if item has saved params)
+    function renderLibrary(){ libList.innerHTML=''; library.forEach((it,idx)=>{
+      const el = document.createElement('div'); el.className='thumb'; el.dataset.idx=idx;
+      const badge = it.params ? '<div style="font-size:11px;color:var(--muted);margin-top:6px">edited</div>' : '';
+      el.innerHTML = `<img src="${it.thumb||it.src}" alt="thumb"><div style="flex:1"><div style="font-weight:700">${it.name||('Item '+(idx+1))}</div><div class='small'>${it.type||''}</div>${badge}</div>`;
+      el.onclick = ()=> loadModel(it);
+      libList.appendChild(el);
+    }); }
+    renderLibrary();
+
+    // Publish acts as Choose File -> loads immediately
+    publishBtn.addEventListener('click', ()=> fileAll.click());
+
+    fileAll.addEventListener('change', e=>{
+      const f = e.target.files?.[0]; if(!f) return;
+      fileSelected = { file:f, name:f.name, size:f.size, isImage: f.type.startsWith('image/') };
+      document.getElementById('fileMeta').textContent = `${fileSelected.name} • ${formatSize(fileSelected.size)}`;
+      // Automatically load immediately (Publish acts as Choose File and loads preview)
+      const name = f.name.toLowerCase(); const isUsd = name.endsWith('.usdz'); const is3d = name.endsWith('.glb')||name.endsWith('.gltf')||isUsd;
+      if (modelObjectUrl){ URL.revokeObjectURL(modelObjectUrl); modelObjectUrl=null; }
+      if (imageObjectUrl){ URL.revokeObjectURL(imageObjectUrl); imageObjectUrl=null; }
+      if (is3d){ // load into model viewer
+        imagePreview.style.display='none'; imgPreviewEl.src='';
+        modelObjectUrl = URL.createObjectURL(f); if(isUsd){ mv.removeAttribute('src'); mv.setAttribute('ios-src', modelObjectUrl); } else { mv.setAttribute('src', modelObjectUrl); mv.removeAttribute('ios-src'); }
+        status.textContent = '3D model loaded'; saveBtn.disabled=false;
+      }
+      else { // show uploaded image separately (do NOT set as model-viewer background)
+        imageObjectUrl = URL.createObjectURL(f); imgPreviewEl.src = imageObjectUrl; imagePreview.style.display='block'; mv.removeAttribute('src'); mv.removeAttribute('ios-src'); status.textContent = 'Image selected — click Generative AI to generate 3D'; saveBtn.disabled=false; }
+    });
+
+    // import/clear library
+    importBtn.addEventListener('click', ()=>{
+      const url = prompt('Enter URL of a GLB/PNG to import as library item'); if(!url) return; const name = url.split('/').pop(); library.unshift({ name, src:url, thumb:url, type: url.endsWith('.png')||url.endsWith('.jpg')?'image':'3d', created:Date.now() }); localStorage.setItem('cr_library', JSON.stringify(library)); renderLibrary(); });
+    clearLib.addEventListener('click', ()=>{ if(confirm('Clear library?')){ library=[]; localStorage.removeItem('cr_library'); renderLibrary(); status.textContent='Library cleared'; } });
+
+    // collect current editable params
+    function collectParams(){ return { tint: tintPicker.value, metallic: parseFloat(metalRange.value), roughness: parseFloat(roughRange.value), motion: preset }; }
+
+    // apply params to current loaded model (best-effort)
+    function applyParams(params){ if(!params) return; try{ if(params.tint) tintPicker.value = params.tint; tintPicker.dispatchEvent(new Event('input')); if(typeof params.metallic!=='undefined') metalRange.value = params.metallic; metalRange.dispatchEvent(new Event('input')); if(typeof params.roughness!=='undefined') roughRange.value = params.roughness; roughRange.dispatchEvent(new Event('input')); if(params.motion){ if(params.motion==='spin') startPreset('spin'); else if(params.motion==='float') startPreset('float'); else if(params.motion==='pulse') startPreset('pulse'); else stopPreset(); } }catch(e){ console.warn('applyParams failed', e); } }
+
+    // Save current preview to library — now saves edited parameters too
+    saveBtn.addEventListener('click', ()=>{
+      const src = mv.getAttribute('src') || mv.getAttribute('ios-src') || imageObjectUrl || null;
+      if(!src) return alert('No preview to save');
+      const params = collectParams();
+      const entry = { name: fileSelected?.name || ('Saved '+(library.length+1)), src, thumb: src, type: fileSelected?.isImage? 'image' : '3d', params, created: Date.now() };
+      library.unshift(entry); localStorage.setItem('cr_library', JSON.stringify(library)); renderLibrary(); status.textContent='Saved edited version to Library';
+    });
+
+    // load model from library (and apply saved params if any)
+    function loadModel(item){ if(!item) return; if(item.type==='image'){ // show image preview separately
+        imagePreview.style.display='block'; imgPreviewEl.src = item.src; mv.removeAttribute('src'); mv.removeAttribute('ios-src');
+      } else {
+        imagePreview.style.display='none'; imgPreviewEl.src=''; if(item.src.endsWith('.usdz')){ mv.removeAttribute('src'); mv.setAttribute('ios-src', item.src); } else { mv.setAttribute('src', item.src); mv.removeAttribute('ios-src'); }
+      }
+      mv.style.background=''; status.textContent = 'Loaded from Library: '+(item.name||''); saveBtn.disabled=false; // apply params
+      if(item.params) setTimeout(()=> applyParams(item.params), 300); }
+
+    // Generative AI (Generate 3D / AR): upload selected image and poll
+    async function generateFromImage(){
+      if(!fileSelected || !fileSelected.isImage) return alert('Choose an image first (Publish)');
+      const f = fileSelected.file;
+      publishBtn.disabled = true; status.textContent = 'Uploading and creating generation task…';
+      const fd = new FormData(); fd.append('image', f);
+      try{
+        const resp = await fetch(`${API_BASE}/api/image-to-3d`, { method:'POST', body:fd });
+        if(!resp.ok) throw new Error(await resp.text());
+        const j = await resp.json(); const taskId = j.taskId; if(!taskId) throw new Error('no task id');
+        status.textContent = 'Generating…';
+        for(let i=0;i<120;i++){
+          await new Promise(r=>setTimeout(r,2500));
+          const q = await fetch(`${API_BASE}/api/image-to-3d/${taskId}`);
+          const s = await q.json();
+          if(s.status==='SUCCEEDED'){
+            const glb = s.glb||null, usdz = s.usdz||null, thumb = s.thumb||null;
+            if(glb) mv.setAttribute('src', glb);
+            if(usdz) mv.setAttribute('ios-src', usdz);
+            if(!glb && !usdz) status.textContent = 'Succeeded but no model URL';
+            status.innerHTML = `Success • ${glb? 'GLB':''}${usdz? ' USDZ':''}`;
+            // add to library (no edited params yet)
+            const entry = { name: fileSelected.name, src: glb||usdz, thumb: thumb||glb||usdz, type:'generated', params:null, created:Date.now() };
+            library.unshift(entry); localStorage.setItem('cr_library', JSON.stringify(library)); renderLibrary(); saveBtn.disabled=false; publishBtn.disabled=false; return;
+          }
+          if(s.status==='FAILED'){ status.textContent='Generation failed: '+(s.error||''); publishBtn.disabled=false; return; }
+          status.textContent = `Generating… ${Math.round(s.progress||0)}%`;
+        }
+        status.textContent = 'Timed out, please try again'; publishBtn.disabled=false;
+      }catch(e){ status.textContent = 'Error: '+e.message; publishBtn.disabled=false; }
+    }
+
+    // wire genBtn to generateFromImage
+    genBtn.addEventListener('click', async ()=>{ if(!fileSelected) return alert('Please Publish (choose) a file first'); if(!fileSelected.isImage) return alert('Generative 3D works with images — choose an image'); if(confirm('Generate 3D/AR from the selected image now?')) await generateFromImage(); });
+
+    // Motion / animation controls
+    function setOrientation(roll, pitch, yaw){ mv.orientation = `${roll}deg ${pitch}deg ${yaw}deg`; }
+    function frame(t){ if(preset==='none'){ if(animRaf) cancelAnimationFrame(animRaf); animRaf=null; return; } if(!t0) t0=t; const dt=(t-t0)/1000; if(preset==='spin'){ const yaw=(dt*60)%360; setOrientation(0,0,yaw); } if(preset==='float'){ const amp=0.02; const freq=0.8; const dy=Math.sin(dt*2*Math.PI*freq)*amp; mv.cameraTarget = `0m ${dy}m 0m`; } if(preset==='pulse'){ const s=1+0.01*Math.sin(dt*2*Math.PI*0.6); mv.scale = `${s} ${s} ${s}`; } animRaf = requestAnimationFrame(frame); }
+    function startPreset(k){ preset=k; t0=0; if(animRaf) cancelAnimationFrame(animRaf); animRaf=requestAnimationFrame(frame); }
+    function stopPreset(){ preset='none'; if(animRaf) cancelAnimationFrame(animRaf); animRaf=null; setOrientation(0,0,0); mv.scale='1 1 1'; mv.cameraTarget='0m 0m 0m'; }
+    spinBtn.addEventListener('click', ()=> startPreset('spin'));
+    floatBtn.addEventListener('click', ()=> startPreset('float'));
+    pulseBtn.addEventListener('click', ()=> startPreset('pulse'));
+    stopMotionBtn.addEventListener('click', ()=> stopPreset());
+
+    // Material controls
+    function hexToLinearRGBA(hex){ const n=parseInt(hex.replace('#',''),16); const r=((n>>16)&255)/255,g=((n>>8)&255)/255,b=(n&255)/255; const lin=v=>Math.pow(v,2.2); return [lin(r),lin(g),lin(b),1]; }
+    function forEachMaterial(cb){ if(!mv.model) return; const sgMats = Array.isArray(mv.model.materials)?mv.model.materials:[]; for(const m of sgMats) try{ cb(m,true); }catch(e){}; const scene = mv.model.scene; if(scene) scene.traverse?.(o=>{ if(o.isMesh && o.material){ const list = Array.isArray(o.material)?o.material:[o.material]; for(const m of list) try{ cb(m,false); }catch(e){} } }); }
+    tintPicker.addEventListener('input', e=>{ const hex=e.target.value; const lin=hexToLinearRGBA(hex); forEachMaterial((mat,isPBR)=>{ try{ if(isPBR && mat.pbrMetallicRoughness?.setBaseColorFactor) mat.pbrMetallicRoughness.setBaseColorFactor(lin); else if(mat.color?.set) mat.color.set(hex); if(mat.needsUpdate) mat.needsUpdate=true; }catch(err){} }); status.textContent='Tint applied'; });
+    metalRange.addEventListener('input', e=>{ const v=parseFloat(e.target.value); forEachMaterial((mat,isPBR)=>{ try{ if(isPBR && mat.pbrMetallicRoughness?.setMetallicFactor) mat.pbrMetallicRoughness.setMetallicFactor(v); else if(typeof mat.metalness==='number') mat.metalness=v; if(mat.needsUpdate) mat.needsUpdate=true; }catch(err){} }); status.textContent='Metallic updated'; });
+    roughRange.addEventListener('input', e=>{ const v=parseFloat(e.target.value); forEachMaterial((mat,isPBR)=>{ try{ if(isPBR && mat.pbrMetallicRoughness?.setRoughnessFactor) mat.pbrMetallicRoughness.setRoughnessFactor(v); else if(typeof mat.roughness==='number') mat.roughness=v; if(mat.needsUpdate) mat.needsUpdate=true; }catch(err){} }); status.textContent='Roughness updated'; });
+
+    mv.addEventListener('load', ()=>{ status.textContent='Model loaded'; // if there are pending params on fileSelected (e.g. after preview)
+      if(fileSelected && fileSelected._pendingParamsToApply){ applyParams(fileSelected._pendingParamsToApply); delete fileSelected._pendingParamsToApply; }
+    });
+
+    // helper to apply params accessible in this scope
+    function applyParams(params){ if(!params) return; try{ if(params.tint){ tintPicker.value = params.tint; } tintPicker.dispatchEvent(new Event('input')); if(typeof params.metallic!=='undefined'){ metalRange.value = params.metallic; } metalRange.dispatchEvent(new Event('input')); if(typeof params.roughness!=='undefined'){ roughRange.value = params.roughness; } roughRange.dispatchEvent(new Event('input')); if(params.motion){ if(params.motion==='spin') startPreset('spin'); else if(params.motion==='float') startPreset('float'); else if(params.motion==='pulse') startPreset('pulse'); else stopPreset(); } }catch(e){ console.warn('applyParams failed', e); } }
+
+    window.addEventListener('beforeunload', ()=>{ if(modelObjectUrl) URL.revokeObjectURL(modelObjectUrl); if(imageObjectUrl) URL.revokeObjectURL(imageObjectUrl); });
+  </script>
+</body>
+</html>
