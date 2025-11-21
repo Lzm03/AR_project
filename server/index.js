@@ -1,11 +1,16 @@
 // server/index.js
-require("dotenv").config();
+
+const path = require("path");
+
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
+
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
 const fetch = require("node-fetch"); // v2.x for CommonJS
 const fs = require("fs");
-const path = require("path");
 const { pipeline } = require("stream");
 const { promisify } = require("util");
 const pipelineAsync = promisify(pipeline);
