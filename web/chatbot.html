@@ -249,10 +249,10 @@ const sendBtn = document.getElementById("sendBtn");
 const micWrapper = document.getElementById("micWrapper");
 const confucius = document.getElementById("confucius");
 // ===== 后端地址配置 =====
-const API_BASE = "http://localhost:3001";
-const WS_BASE = "ws://localhost:3001";
-// const API_BASE = "https://arproject-production-a365.up.railway.app";
-// const WS_BASE  = "wss://arproject-production-a365.up.railway.app";
+// const API_BASE = "http://localhost:3001";
+// const WS_BASE = "ws://localhost:3001";
+const API_BASE = "https://arproject-production-a365.up.railway.app";
+const WS_BASE  = "wss://arproject-production-a365.up.railway.app";
 let requestId = 0;
 
 
@@ -423,13 +423,22 @@ async function toggleMic() {
   };
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+  socket.onopen = async () => {
+    console.log("WS opened, start recording");
 
-  mediaRecorder.ondataavailable = e => {
-    if (socket.readyState === 1) socket.send(e.data);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+    mediaRecorder.ondataavailable = e => {
+      console.log("audio chunk size:", e.data.size);
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(e.data);
+      }
+    };
+
+    mediaRecorder.start(1); // 100ms 稳定
   };
-
-  mediaRecorder.start(0.1);
 
   audioContext = new AudioContext();
   analyser = audioContext.createAnalyser();
