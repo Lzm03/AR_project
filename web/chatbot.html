@@ -13,10 +13,11 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  position: fixed;
+  margin: 0;
+  overflow: hidden; /* 可以保留 */
+  position: relative; /* ⭐ 关键 */
+  -webkit-overflow-scrolling: touch;
 }
-
 
 :root {
   --panel: rgba(28, 28, 30, 0.72);
@@ -39,7 +40,19 @@ body {
 #app {
   display: flex;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
+
+#panel,
+#input,
+#prompt,
+#sendBtn,
+#micWrapper {
+  touch-action: manipulation;
+}
+
+
 
 /* ===== 左侧 3D ===== */
 
