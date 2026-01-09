@@ -9,7 +9,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 const wss = new WebSocketServer({ port: 3002 });
 
 const client = new speech.SpeechClient({
-  keyFilename: "/Users/liuzhiming/Desktop/AR_project/server/ar-project-483707-0ee7286b9061.json"
+  keyFilename: "/Users/liuzhiming/Desktop/AR_project/server/ar-project-483707-0885fe3f4063.json"
 });
 
 console.log("🧠 Google Streaming WS running at ws://localhost:3002");

@@ -45,7 +45,7 @@ body {
 
 #vr {
   flex: 1.2;
-  background: url("/class.jpg") center / cover no-repeat;
+  background: url("./class.jpg") center / cover no-repeat;
 }
 
 model-viewer {
@@ -183,7 +183,7 @@ model-viewer {
   <div id="vr">
     <model-viewer
       id="confucius"
-      src="/models/idle.glb"
+      src="./models/idle.glb"
       autoplay
 
       interaction-prompt="none"
@@ -235,21 +235,29 @@ const promptInput = document.getElementById("prompt");
 const sendBtn = document.getElementById("sendBtn");
 const micWrapper = document.getElementById("micWrapper");
 const confucius = document.getElementById("confucius");
+// ===== 后端地址配置 =====
+const API_BASE = "http://localhost:3001";
+const WS_BASE  = "ws://localhost:3002";
+let requestId = 0;
+
+
 
 /* ===== 3D 状态控制 ===== */
 
 function playIdle() {
-  confucius.src = "/models/idle.glb";
+  confucius.src = "./models/idle.glb";
 }
 
 function playTalk() {
-  confucius.src = "/models/talk.glb";
+  confucius.src = "./models/talk.glb";
 }
 
 /* ===== 聊天 ===== */
 
 let currentAudio = null;
 let isLocked = false;
+let blockSendOnce = false;
+
 
 
 
@@ -280,15 +288,20 @@ function unlock() {
 
 
 async function send() {
+  const myRequestId = ++requestId; // 🔑 本次请求编号
+
+  if (blockSendOnce) {
+    blockSendOnce = false;
+    return;
+  }
   if (isLocked) return;
 
-  // 🔒 一点发送，立刻锁
   isLocked = true;
   promptInput.disabled = true;
   sendBtn.textContent = "▪️";
   sendBtn.classList.add("stop");
 
-  interruptConfucius(); // 现在安全了（只停音）
+  interruptConfucius();
 
   const text = promptInput.value.trim();
   if (!text) {
@@ -299,17 +312,27 @@ async function send() {
   promptInput.value = "";
   addMsg("你", text);
 
-  const res = await fetch("/api/chat", {
+  const res = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt: text })
   });
 
   const data = await res.json();
+
+  // 🛑 关键：如果请求已过期，直接丢弃
+  if (myRequestId !== requestId) {
+    return;
+  }
+
   addMsg("孔子", data.text, true);
 
   if (data.audioUrl) {
-    currentAudio = new Audio(data.audioUrl);
+    const audioSrc = data.audioUrl.startsWith("http")
+      ? data.audioUrl
+      : API_BASE + data.audioUrl;
+
+    currentAudio = new Audio(audioSrc);
     playTalk();
     currentAudio.play();
     currentAudio.onended = unlock;
@@ -319,14 +342,16 @@ async function send() {
 }
 
 
-
 sendBtn.onclick = () => {
   if (isLocked) {
-    unlock(); // ▪️ → 打断
+    requestId++;        // 🔥 使所有正在进行的请求失效
+    blockSendOnce = true;
+    unlock();
   } else {
     send();
   }
 };
+
 
 
 
@@ -339,6 +364,15 @@ function addMsg(role, text, ai=false) {
 
 /* ===== Google Streaming + 麦克风动画 ===== */
 
+function forceInterrupt() {
+  // 如果孔子正在说话 or 系统锁定
+  if (isLocked) {
+    unlock(); // 这一步等价于点 ▪️
+  } else {
+    interruptConfucius();
+  }
+}
+
 let socket = null;
 let mediaRecorder = null;
 let isRecording = false;
@@ -349,14 +383,17 @@ let pulsePhase = 0;
 micWrapper.onclick = toggleMic;
 
 async function toggleMic() {
-  interruptConfucius();
+  blockSendOnce = isLocked;
+  if (isLocked) requestId++; // 🔥 直接废掉当前请求
+  forceInterrupt();
+
 
   if (isRecording) {
     stopMic();
     return;
   }
 
-  socket = new WebSocket("ws://localhost:3002");
+  socket = new WebSocket(WS_BASE);
 
   socket.onmessage = e => {
     const d = JSON.parse(e.data);
@@ -377,7 +414,7 @@ async function toggleMic() {
     if (socket.readyState === 1) socket.send(e.data);
   };
 
-  mediaRecorder.start(50);
+  mediaRecorder.start(0.1);
 
   audioContext = new AudioContext();
   analyser = audioContext.createAnalyser();
@@ -440,7 +477,6 @@ promptInput.addEventListener("keydown", e => {
     }
   }
 });
-
 
 
 </script>

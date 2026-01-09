@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "concurrently \"node index.js\" \"node google_streaming_ws.js\"",
+    "start": "node index.js & node google_streaming_ws.js",
     "stop": "lsof -ti :3001,:3002 | xargs kill -9"
   },
   "dependencies": {

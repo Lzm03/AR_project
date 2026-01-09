@@ -139,16 +139,16 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-/* ================== 前端 ================== */
-const WEB_DIR = path.join(__dirname, "../web");
+// /* ================== 前端 ================== */
+// const WEB_DIR = path.join(__dirname, "../web");
 
-app.use(express.static(WEB_DIR));
+// app.use(express.static(WEB_DIR));
 
-app.get("/chatbot", (req, res) => {
-  res.sendFile(path.join(WEB_DIR, "chatbot.html"));
-});
+// app.get("/chatbot", (req, res) => {
+//   res.sendFile(path.join(WEB_DIR, "chatbot.html"));
+// });
 
 
 app.listen(3001, () => {
-  console.log("✅ Server running at http://localhost:3001/chatbot");
+  console.log("✅ Server running at http://localhost:3001");
 });
