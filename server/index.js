@@ -297,7 +297,6 @@ app.post("/api/chat", async (req, res) => {
 });
 
 /* ================== HTTP + WS 共用端口 ================== */
-const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 /* ================== WebSocket + Google STT ================== */
@@ -361,7 +360,13 @@ wss.on("connection", ws => {
 });
 
 /* ================== 启动 ================== */
+const PORT = process.env.PORT;
+if (!PORT) {
+  throw new Error("❌ PORT is not defined");
+}
+
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Server listening on ${PORT}`);
 });
+
 
