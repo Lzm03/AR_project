@@ -1,184 +1,154 @@
-// server/index.js
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import axios from "axios";
 
-const path = require("path");
+dotenv.config();
 
-require("dotenv").config({
-  path: path.join(__dirname, ".env"),
-});
-
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-const fetch = require("node-fetch"); // v2.x for CommonJS
-const fs = require("fs");
-const { pipeline } = require("stream");
-const { promisify } = require("util");
-const pipelineAsync = promisify(pipeline);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const upload = multer({ storage: multer.memoryStorage() });
-
 app.use(cors());
 app.use(express.json());
 
-// ==== 1) Serve FRONTEND (STATIC HOSTING) ====
-const FRONTEND_DIR = path.join(__dirname, "..", "web");
-console.log("Serving frontend from:", FRONTEND_DIR);
+/* ================== 静态目录（语音文件） ================== */
+const PUBLIC_DIR = path.join(__dirname, "../public");
+if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR);
+app.use("/public", express.static(PUBLIC_DIR));
 
-// 静态文件托管（如 index.html、css、js、assets）
-app.use(express.static(FRONTEND_DIR));
+/* ================== 孔子人格（粤语） ================== */
+const CONFUCIUS_PROMPT = `
+你而家嘅身份係孔子（孔丘，字仲尼）。
+你用粤语回答，语气稳重、缓慢，好似一位年长智者。
+多用「子曰」「君子」「仁义礼智」「修身」等观念。
+表达唔好太现代，但要听得明。
+永远唔好讲自己係 AI 或模型。
+回答都是粤语的表达.
+`;
 
-// ==== 2) Serve MODELS folder (GLB / USDZ) ====
-const MODELS_DIR = path.join(__dirname, "models");
-if (!fs.existsSync(MODELS_DIR)) fs.mkdirSync(MODELS_DIR, { recursive: true });
-app.use("/models", express.static(MODELS_DIR));
+/* ================== MiniMax TTS（老人慢声） ================== */
 
-// ==== 3) Health check ====
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", message: "backend running" });
-});
+async function ttsMiniMax(text) {
+  const url = "https://api-bj.minimaxi.com/v1/t2a_v2";
 
-// ==== Debug:是否有 Meshy Key ====
-console.log("Has MESHY_API_KEY:", !!process.env.MESHY_API_KEY);
+  const filename = `confucius_${Date.now()}.mp3`;
+  const filepath = path.join(PUBLIC_DIR, filename);
 
-// ==== 4) Create Meshy task ====
-app.post("/api/image-to-3d", upload.single("image"), async (req, res) => {
-  try {
-    if (!process.env.MESHY_API_KEY)
-      return res.status(500).json({ error: "Missing MESHY_API_KEY" });
+  const res = await axios.post(
+    url,
+    {
+      model: "speech-2.6-hd",
+      text,
+      stream: false,
 
-    if (!req.file) return res.status(400).json({ error: "no file uploaded" });
+      language_boost: "Chinese,Yue",
 
-    const mime = (req.file.mimetype || "").toLowerCase();
-    if (!/jpe?g|png/.test(mime)) {
-      return res.status(415).json({ error: "Only JPG/PNG supported" });
+      voice_setting: {
+        voice_id: "ttv-voice-2026010717105726-MonsIoM4",
+        speed: 1.0,  
+        vol: 1,
+        pitch: -2,  
+        emotion: "calm"
+      },
+
+      audio_setting: {
+        format: "mp3",
+        sample_rate: 32000,
+        bitrate: 128000,
+        channel: 1
+      },
+
+      output_format: "hex"
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.MINIMAX_API_KEY}`,
+        "Content-Type": "application/json"
+      }
     }
+  );
 
-    const b64 = req.file.buffer.toString("base64");
-    const dataUri = `data:${mime};base64,${b64}`;
+  console.log("MiniMax TTS success");
 
-    const resp = await fetch("https://api.meshy.ai/openapi/v1/image-to-3d", {
+  const hexAudio = res.data?.data?.audio;
+  if (!hexAudio) {
+    throw new Error("MiniMax 没返回 audio");
+  }
+
+  // ✅ 关键：hex → Buffer
+  const audioBuffer = Buffer.from(hexAudio, "hex");
+  fs.writeFileSync(filepath, audioBuffer);
+
+  return `/public/${filename}`;
+}
+
+
+/* ================== API ================== */
+app.post("/api/chat", async (req, res) => {
+  const { prompt } = req.body;
+  console.log("📩 用户提问:", prompt);
+
+  try {
+    // 1️⃣ DeepSeek 生成孔子回答
+    const r = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.MESHY_API_KEY}`,
-        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ image_url: dataUri }),
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: CONFUCIUS_PROMPT },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.6
+      })
     });
 
-    const text = await resp.text();
-    if (!resp.ok) return res.status(resp.status).json({ error: text });
+    const data = await r.json();
+    const reply =
+      data?.choices?.[0]?.message?.content ||
+      "子曰：此问尚需细思。";
 
-    let j = {};
+    // 2️⃣ MiniMax 生成老人慢声语音
+    let audioUrl = null;
     try {
-      j = JSON.parse(text);
-    } catch {}
+      audioUrl = await ttsMiniMax(reply);
+    } catch (e) {
+      console.error("❌ MiniMax TTS 失败:", e.message);
+    }
 
-    const taskId =
-      j.result || j.id || j.task_id || j.taskId || null;
-
-    if (!taskId)
-      return res.status(500).json({ error: "Meshy returned no task id" });
-
-    return res.json({ taskId });
-  } catch (err) {
-    console.error("Create error:", err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
-
-// ==== 5) Poll Meshy ====
-app.get("/api/image-to-3d/:taskId", async (req, res) => {
-  try {
-    const url = `https://api.meshy.ai/openapi/v1/image-to-3d/${req.params.taskId}`;
-
-    const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${process.env.MESHY_API_KEY}` },
+    // 3️⃣ 返回前端
+    res.json({
+      text: reply,
+      audioUrl
     });
 
-    const text = await r.text();
-    if (!r.ok) return res.status(r.status).json({ error: text });
-
-    let j = {};
-    try {
-      j = JSON.parse(text);
-    } catch {}
-
-    const status = j.status || j.task_status;
-    const urls = j.model_urls || j.result || {};
-
-    // status not finished
-    if (status !== "SUCCEEDED") {
-      return res.json({ status, progress: j.progress ?? 0 });
-    }
-
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
-
-    // ---- Download GLB ----
-    let glb = null;
-    if (urls.glb) {
-      try {
-        const glbResp = await fetch(urls.glb);
-        const glbPath = path.join(MODELS_DIR, `${req.params.taskId}.glb`);
-        await pipelineAsync(glbResp.body, fs.createWriteStream(glbPath));
-        glb = `${baseUrl}/models/${req.params.taskId}.glb`;
-      } catch (e) {
-        console.error("GLB download failed:", e.message);
-      }
-    }
-
-    // ---- Download USDZ ----
-    let usdz = null;
-    if (urls.usdz) {
-      try {
-        const uResp = await fetch(urls.usdz);
-        const uPath = path.join(MODELS_DIR, `${req.params.taskId}.usdz`);
-        await pipelineAsync(uResp.body, fs.createWriteStream(uPath));
-        usdz = `${baseUrl}/models/${req.params.taskId}.usdz`;
-      } catch (e) {
-        console.error("USDZ download failed:", e.message);
-      }
-    }
-
-    return res.json({
-      status: "SUCCEEDED",
-      glb,
-      usdz,
-      progress: 100,
+  } catch (e) {
+    console.error(e);
+    res.json({
+      text: "子曰：天道幽远，吾暂未能言。",
+      audioUrl: null
     });
-  } catch (err) {
-    console.error("Poll error:", err);
-    return res.status(500).json({ status: "FAILED", error: "server error" });
   }
 });
 
-// ==== 6) SPA FALLBACK (NO PATH-TO-REGEXP) ====
-app.use((req, res, next) => {
-  try {
-    if (req.method !== "GET") return next();
+/* ================== 前端 ================== */
+const WEB_DIR = path.join(__dirname, "../web");
 
-    const p = req.path || "";
+app.use(express.static(WEB_DIR));
 
-    // 不拦截 API 和 models
-    if (p.startsWith("/api") || p.startsWith("/models")) return next();
-
-    // 不拦截静态资源（带扩展名）
-    if (/\.[a-zA-Z0-9]{1,8}$/.test(p)) return next();
-
-    // 返回前端首页
-    const indexPath = path.join(FRONTEND_DIR, "index.html");
-    if (fs.existsSync(indexPath)) {
-      return res.sendFile(indexPath);
-    }
-
-    return next();
-  } catch {
-    return next();
-  }
+app.get("/chatbot", (req, res) => {
+  res.sendFile(path.join(WEB_DIR, "chatbot.html"));
 });
 
-// ==== 7) Start server ====
-const port = process.env.PORT || 3000;
-app.listen(port, "0.0.0.0", () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
+
+app.listen(3001, () => {
+  console.log("✅ Server running at http://localhost:3001/chatbot");
 });

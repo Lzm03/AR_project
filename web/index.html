@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en" class="h-full">
 <head>
   <meta charset="utf-8" />
@@ -317,6 +317,489 @@
     function applyParams(params){ if(!params) return; try{ if(params.tint){ tintPicker.value = params.tint; } tintPicker.dispatchEvent(new Event('input')); if(typeof params.metallic!=='undefined'){ metalRange.value = params.metallic; } metalRange.dispatchEvent(new Event('input')); if(typeof params.roughness!=='undefined'){ roughRange.value = params.roughness; } roughRange.dispatchEvent(new Event('input')); if(params.motion){ if(params.motion==='spin') startPreset('spin'); else if(params.motion==='float') startPreset('float'); else if(params.motion==='pulse') startPreset('pulse'); else stopPreset(); } }catch(e){ console.warn('applyParams failed', e); } }
 
     window.addEventListener('beforeunload', ()=>{ if(modelObjectUrl) URL.revokeObjectURL(modelObjectUrl); if(imageObjectUrl) URL.revokeObjectURL(imageObjectUrl); });
+  </script>
+</body>
+</html> -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chop Reality — Tomato Hero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- 粗体标题字体：接近示例里的 CHOP / REALITY -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0b0b0d;
+      --muted:#8b8ba0;
+      --mouth-scale:1; /* 嘴巴内文字缩放系数，JS 会改这个 */
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+    }
+
+    body{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .page{
+      width:100%;
+      height:100%;
+      padding:32px 40px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    /* 顶部 CHOP / 番茄 / REALITY，铺满一行，整体更紧凑 */
+    .hero-title{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:0;  /* 中间不留固定间距，让左右靠近番茄 */
+      width:100%;
+    }
+
+    .hero-text-block{
+      position:relative;
+      z-index:5;
+    }
+
+    /* 左右各贴近番茄一点（自适应少量空隙） */
+    .hero-left{
+      margin-right:clamp(0px, 1vw, 0px);
+    }
+    .hero-right{
+      margin-left:clamp(0px, 1vw, 0px);
+    }
+
+    .hero-word{
+      font-family:"Anton", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size:clamp(135px, 10vw, 300px);
+      font-weight:400;               /* Anton 自带粗体，不用 900 */
+      letter-spacing:-0.01em;         /* 比之前更紧，接近示例 */
+      color:#e24a2b;
+      white-space:nowrap;
+      line-height:0.9;
+    }
+    .hero-word.small-blue{
+      font-family:"Anton", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size:clamp(38px, 3vw, 50px);
+      font-weight:400;
+      letter-spacing:0.03em;
+      color:#1b63d8;
+      margin-top:4px;
+    }
+
+    .tomato-wrapper{
+      position:relative;
+      z-index:3;
+      width:min(45vw, 400px);  /* 小人大小在这里调 */
+      aspect-ratio:1/1;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+    }
+    .tomato-frame{
+      position:relative;
+      z-index:1;
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain;
+      transform:scale(1);
+      transition:transform .05s linear;
+      pointer-events:none;
+    }
+
+    /* 嘴里的文字：限制在嘴巴区域（用百分比，自动跟番茄一起缩放） */
+    .tomato-overlay{
+      position:absolute;
+      left:50%;
+      top:66%;
+      width:60%;
+      height:38%;
+      transform:translate(-50%,-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#fff;
+      padding:8px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease;
+      z-index:10;
+    }
+    .tomato-overlay.visible{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    /* 嘴里的文字和按钮，用 --mouth-scale 跟番茄一起缩放 */
+    .tomato-lines{
+      font-weight:900;
+      font-size:calc(30px * var(--mouth-scale));
+      line-height:1.5;
+      text-shadow:0 3px 6px rgba(0,0,0,.9);
+      margin-bottom:0px;
+    }
+    .tomato-upload-btn{
+      -webkit-appearance:none;
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      padding:calc(6px * var(--mouth-scale)) calc(20px * var(--mouth-scale));
+      font-weight:900;
+      font-size:calc(25px * var(--mouth-scale));
+      background:#1a73ff;
+      color:#fff;
+      cursor:pointer;
+      box-shadow:0 10px 28px rgba(0,0,0,.5);
+      z-index:11;
+    }
+    .tomato-upload-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 14px 36px rgba(0,0,0,.55);
+    }
+    .tomato-upload-btn:active{
+      transform:translateY(0);
+      box-shadow:0 6px 18px rgba(0,0,0,.4);
+    }
+
+    /* 拖拽高亮效果 */
+    .tomato-wrapper.drag-over{
+      outline:4px dashed rgba(26,115,255,.9);
+      outline-offset:10px;
+    }
+
+    @media (max-width:880px){
+      .page{
+        padding:24px 20px;
+      }
+      .hero-title{
+        flex-direction:column;
+        gap:14px;
+      }
+      .hero-text-block{
+        text-align:center;
+      }
+      .hero-left,
+      .hero-right{
+        margin:0; /* 小屏改成上下排列时，不再左右挤压 */
+      }
+      .hero-word{
+        font-size:clamp(50px, 13vw, 90px);
+      }
+      .tomato-wrapper{
+        width:min(75vw, 520px);
+      }
+    }
+
+    /* ===== 右上角登录区 ===== */
+.top-auth{
+  position:fixed;
+  top:20px;
+  right:28px;
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:8px 14px;
+  border-radius:999px;
+
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.35);
+
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+
+  font-size:13px;
+}
+
+
+.top-auth button{
+  -webkit-appearance:none;
+  appearance:none;
+
+  border:none;
+  border-radius:999px;
+  padding:8px 18px;
+
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.02em;
+
+  cursor:pointer;
+
+  color:#111;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,0.95),
+    rgba(245,245,250,0.9)
+  );
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* hover 轻浮起 */
+.top-auth button:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+/* active 按下去 */
+.top-auth button:active{
+  transform:translateY(0);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.2),
+    inset 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* 🔵 主按钮 Login / Library */
+.top-auth .primary{
+  color:white;
+  background:linear-gradient(
+    180deg,
+    #4f9cff,
+    #0a63ff
+  );
+
+  box-shadow:
+    0 10px 30px rgba(10,99,255,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- ✅ 右上角登录状态区 -->
+  <div class="top-auth" id="topAuth">
+    <button class="primary" onclick="location.href='login.html'">Log in</button>
+  </div>
+
+  <div class="page">
+    <div class="hero-title">
+      <div class="hero-text-block hero-left" style="text-align:right">
+        <div class="hero-word">CHOP</div>
+      </div>
+
+      <div class="tomato-wrapper" id="tomatoWrapper">
+        <img id="tomatoFrame" class="tomato-frame" src="./frames/frame_001.png" alt="Tomato hero" />
+        <div class="tomato-overlay" id="tomatoOverlay">
+          <div class="tomato-lines">
+            <div>Zero-Code AR/VR:</div>
+            <div>Drag any photo.</div>
+            <div>Get instant magic.</div>
+          </div>
+          <button class="tomato-upload-btn" id="tomatoUploadBtn">Upload any photo</button>
+        </div>
+      </div>
+
+      <div class="hero-text-block hero-right" style="text-align:left">
+        <div class="hero-word">REALITY</div>
+        <div class="hero-word small-blue">Zero-Code AR/VR</div>
+      </div>
+    </div>
+
+    <!-- 隐藏的文件选择 -->
+    <input id="fileInput" type="file" accept="image/*" style="display:none" />
+  </div>
+
+  <!-- 番茄动效脚本（完全保留你的逻辑） -->
+  <script>
+    // ===== 配置：64 帧 + 缩放范围 =====
+    const TOMATO_TOTAL_FRAMES = 64;
+    const TOMATO_SCALE_FROM = 1.0;
+    const TOMATO_SCALE_TO   = 1.6;
+
+    const tomatoWrapper = document.getElementById('tomatoWrapper');
+    const tomatoImg = document.getElementById('tomatoFrame');
+    const tomatoOverlay = document.getElementById('tomatoOverlay');
+    const tomatoUploadBtn = document.getElementById('tomatoUploadBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    let tomatoFrameIndex = 1;
+    let tomatoTimer = null;
+    let isHover = false;
+    let targetFrame = 1;
+
+    // 根据番茄当前宽度，更新嘴里文字缩放
+    function updateMouthScale(){
+      const refWidth = 640; // 设计稿基准宽度
+      const w = tomatoWrapper.offsetWidth || refWidth;
+      const scale = Math.max(0.5, Math.min(1.1, w / refWidth));
+      document.documentElement.style.setProperty('--mouth-scale', scale.toFixed(3));
+    }
+
+    function tomatoFramePath(i){
+      return `./frames/frame_${String(i).padStart(3,'0')}.png`;
+    }
+
+    // 预加载所有帧
+    (function preloadTomatoFrames(){
+      for(let i=1;i<=TOMATO_TOTAL_FRAMES;i++){
+        const img = new Image();
+        img.src = tomatoFramePath(i);
+      }
+    })();
+
+    function updateTomatoFrame(i){
+      tomatoImg.src = tomatoFramePath(i);
+      const progress = (i-1)/(TOMATO_TOTAL_FRAMES-1);
+      const s = TOMATO_SCALE_FROM + (TOMATO_SCALE_TO - TOMATO_SCALE_FROM)*progress;
+      tomatoImg.style.transform = `scale(${s})`;
+
+      const openThreshold = TOMATO_TOTAL_FRAMES - 6;
+      if (i >= openThreshold && isHover){
+        tomatoOverlay.classList.add('visible');
+      } else {
+        tomatoOverlay.classList.remove('visible');
+      }
+    }
+
+    function startTomatoAnimation(){
+      if (tomatoTimer) return;
+
+      tomatoTimer = setInterval(()=>{
+        if (tomatoFrameIndex === targetFrame){
+          clearInterval(tomatoTimer);
+          tomatoTimer = null;
+          return;
+        }
+        if (tomatoFrameIndex < targetFrame){
+          tomatoFrameIndex++;
+        } else if (tomatoFrameIndex > targetFrame){
+          tomatoFrameIndex--;
+        }
+        updateTomatoFrame(tomatoFrameIndex);
+      }, 12);
+    }
+
+    tomatoWrapper.addEventListener('mouseenter', ()=>{
+      isHover = true;
+      targetFrame = TOMATO_TOTAL_FRAMES;
+      startTomatoAnimation();
+    });
+
+    tomatoWrapper.addEventListener('mouseleave', ()=>{
+      isHover = false;
+      tomatoOverlay.classList.remove('visible');
+      targetFrame = 1;
+      startTomatoAnimation();
+    });
+
+    tomatoWrapper.addEventListener('click', ()=>{
+      if (tomatoOverlay.classList.contains('visible')){
+        fileInput.click();
+      }
+    });
+
+    tomatoUploadBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', e=>{
+      const file = e.target.files?.[0];
+      if(!file) return;
+      handleFile(file);
+    });
+
+    ['dragenter','dragover'].forEach(ev=>{
+      tomatoWrapper.addEventListener(ev, e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        tomatoWrapper.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave','dragend','drop'].forEach(ev=>{
+      tomatoWrapper.addEventListener(ev, e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        tomatoWrapper.classList.remove('drag-over');
+      });
+    });
+
+    tomatoWrapper.addEventListener('drop', e=>{
+      const file = e.dataTransfer?.files?.[0];
+      if(file) handleFile(file);
+    });
+
+    function handleFile(file){
+      console.log('Selected file:', file.name, file.size);
+      // 之后在这里接你的 Meshy / 3D 逻辑
+    }
+
+    window.addEventListener('load', updateMouthScale);
+    window.addEventListener('resize', updateMouthScale);
+  </script>
+
+  <!-- 顶部登录状态脚本 -->
+  <script>
+    async function refreshAuth(){
+      const bar = document.getElementById("topAuth");
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (!res.ok) throw 0;
+
+        const data = await res.json();
+        bar.innerHTML = `
+          <span>Hi, ${data.email}</span>
+          <button onclick="logout()">Logout</button>
+          <button class="primary" onclick="location.href='library.html'">Library</button>
+        `;
+      } catch {
+        bar.innerHTML = `
+          <button class="primary" onclick="location.href='login.html'">Log in</button>
+        `;
+      }
+    }
+
+    async function logout(){
+      await fetch("/api/auth/logout", {
+        method:"POST",
+        credentials:"include"
+      });
+      location.reload();
+    }
+
+    refreshAuth();
   </script>
 </body>
 </html>
