@@ -367,6 +367,19 @@ sendBtn.onclick = () => {
   }
 };
 
+function getVolume(analyser) {
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+
+  // 平均能量
+  let sum = 0;
+  for (let i = 0; i < data.length; i++) {
+    sum += data[i];
+  }
+  return sum / data.length;
+}
+
+
 
 
 
@@ -399,16 +412,45 @@ micWrapper.onclick = toggleMic;
 
 async function toggleMic() {
   blockSendOnce = isLocked;
-  if (isLocked) requestId++; // 🔥 直接废掉当前请求
+  if (isLocked) requestId++;
   forceInterrupt();
-
 
   if (isRecording) {
     stopMic();
     return;
   }
 
+  pendingChunks = [];
+  isRecording = true;
+
+  // ① 先拿麦克风
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  // ② 立刻开始录音（不等 WS）
+  mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+  mediaRecorder.ondataavailable = e => {
+    if (!e.data || e.data.size === 0) return;
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(e.data);
+    } else {
+      pendingChunks.push(e.data); // WS 未 ready，缓存
+    }
+  };
+
+  mediaRecorder.start(10); // ✅ 建议 10ms，1ms 太激进
+
+  // ③ 再创建 WebSocket（只一次）
   socket = new WebSocket(WS_BASE);
+
+  socket.onopen = () => {
+    console.log("WS opened");
+
+    // ④ 补送第一句话
+    pendingChunks.forEach(chunk => socket.send(chunk));
+    pendingChunks = [];
+  };
 
   socket.onmessage = e => {
     const d = JSON.parse(e.data);
@@ -417,27 +459,10 @@ async function toggleMic() {
     promptInput.value = d.text;
 
     if (d.final) {
+      blockSendOnce = false;  // ✅ 确保不会被挡
       send();
       stopMic();
     }
-  };
-
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  socket.onopen = async () => {
-    console.log("WS opened, start recording");
-
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-    mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-
-    mediaRecorder.ondataavailable = e => {
-      console.log("audio chunk size:", e.data.size);
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(e.data);
-      }
-    };
-
-    mediaRecorder.start(1); // 100ms 稳定
   };
 
   audioContext = new AudioContext();
@@ -446,11 +471,11 @@ async function toggleMic() {
   micSource = audioContext.createMediaStreamSource(stream);
   micSource.connect(analyser);
 
-  isRecording = true;
   sendBtn.disabled = true;
   micWrapper.classList.add("recording");
   startMicAnimation();
 }
+
 
 function stopMic() {
   mediaRecorder?.state !== "inactive" && mediaRecorder.stop();
@@ -458,8 +483,11 @@ function stopMic() {
 
   isRecording = false;
   sendBtn.disabled = false;
+
+  blockSendOnce = false;   // ✅ ⭐ 必须在这里重置
   stopMicAnimation();
 }
+
 
 function startMicAnimation() {
   const outer = document.querySelector(".ring-outer");
