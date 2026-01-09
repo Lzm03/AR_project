@@ -197,6 +197,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ⭐⭐⭐ 必须有，不然 Railway 一直 502
+app.get("/", (req, res) => {
+  res.status(200).send("OK");
+});
+
+
 /* ================== 静态目录（TTS 输出） ================== */
 const PUBLIC_DIR = path.join(__dirname, "public");
 if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR);
