@@ -166,12 +166,12 @@ import { fileURLToPath } from "url";
 
 import { WebSocketServer } from "ws";
 import speech from "@google-cloud/speech";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegPath from "ffmpeg-static";
-import { PassThrough } from "stream";
+// import ffmpeg from "fluent-ffmpeg";
+// import ffmpegPath from "ffmpeg-static";
+// import { PassThrough } from "stream";
 
 dotenv.config();
-ffmpeg.setFfmpegPath(ffmpegPath);
+// ffmpeg.setFfmpegPath(ffmpegPath);
 
 /* ================== 基础路径 ================== */
 const __filename = fileURLToPath(import.meta.url);
@@ -315,15 +315,25 @@ wss.on("connection", ws => {
 
   let closed = false;
 
+  // const request = {
+  //   config: {
+  //     encoding: "LINEAR16",
+  //     sampleRateHertz: 16000,
+  //     languageCode: "zh-HK",
+  //     enableAutomaticPunctuation: true
+  //   },
+  //   interimResults: true
+  // };
   const request = {
     config: {
-      encoding: "LINEAR16",
-      sampleRateHertz: 16000,
+      encoding: "WEBM_OPUS",
+      sampleRateHertz: 48000,
       languageCode: "zh-HK",
       enableAutomaticPunctuation: true
     },
     interimResults: true
   };
+
 
   const recognizeStream = speechClient
     .streamingRecognize(request)
@@ -340,29 +350,28 @@ wss.on("connection", ws => {
       if (!closed) console.error("❌ Google STT error:", err.message);
     });
 
-  const audioInput = new PassThrough();
+  // const audioInput = new PassThrough();
 
-  ffmpeg(audioInput)
-    .inputFormat("webm")
-    .audioChannels(1)
-    .audioFrequency(16000)
-    .audioCodec("pcm_s16le")
-    .format("s16le")
-    .pipe(recognizeStream, { end: false });
+  // ffmpeg(audioInput)
+  //   .inputFormat("webm")
+  //   .audioChannels(1)
+  //   .audioFrequency(16000)
+  //   .audioCodec("pcm_s16le")
+  //   .format("s16le")
+  //   .pipe(recognizeStream, { end: false });
 
   ws.on("message", chunk => {
-    if (!closed) audioInput.write(chunk);
+    recognizeStream.write(chunk);
   });
+
 
   ws.on("close", () => {
     closed = true;
-    setTimeout(() => {
-      try {
-        audioInput.end();
-        recognizeStream.end();
-      } catch {}
-    }, 200);
+    try {
+      recognizeStream.end();
+    } catch {}
   });
+
 });
 
 /* ================== 启动 ================== */
