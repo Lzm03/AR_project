@@ -147,7 +147,13 @@ async function create() {
   loading.value = true;
 
   const fd = new FormData();
-  Object.entries(form.value).forEach(([k, v]) => fd.append(k, v));
+  fd.append("name", form.value.name);
+  fd.append("prompt", form.value.prompt);
+  fd.append("voice_id", form.value.voice_id);
+
+  fd.append("idle", form.value.idle);
+  fd.append("talk", form.value.talk);
+  fd.append("bg", form.value.bg);
 
   try {
     const res = await fetch(`${API_BASE}/api/characters`, {
