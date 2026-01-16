@@ -44,11 +44,12 @@ body {
 
 #vr {
   flex: 1.2;
+  position: relative; /* ⭐⭐ 必要，不然 model-viewer 被壓扁 */
   background: url("./class.jpg") center / cover no-repeat;
 }
 
 model-viewer {
-  position: relative;
+  position: absolute; /* ⭐⭐ 這是關鍵 */
   z-index: 2;
   width: 100%;
   height: 100%;
