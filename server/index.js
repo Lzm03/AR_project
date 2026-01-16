@@ -258,10 +258,12 @@
 // });
 
 
-import { startServer } from "./server.js";
-import "./config/env.js";
-import "./config/google.js";
-import "dotenv/config";
+// index.js（唯一入口）
 
+import "dotenv/config";        // 一定最先
+import "./config/env.js";     // 檢查 env
+import "./config/google.js";  // 初始化 google
+
+import { startServer } from "./server.js";
 
 startServer();
