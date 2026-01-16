@@ -14,9 +14,12 @@ router.post("/", async (req, res) => {
   if (!character) return res.status(400).json({ error: "No character" });
 
   const text = await askLLM(character.prompt, prompt);
-  const audioUrl = await synthesizeSpeech(text, character.voiceId);
+  const audioBase64 = await synthesizeSpeech(text, character.voiceId);
 
-  res.json({ text, audioUrl });
+  res.json({
+  text,
+  audioBase64
+});
 });
 
 export default router;

@@ -53,5 +53,5 @@ export async function synthesizeSpeech(text, voiceId) {
   }
 
   fs.writeFileSync(filepath, Buffer.from(hex, "hex"));
-  return `/public/${filename}`;
+  return Buffer.from(hex, "hex").toString("base64");
 }

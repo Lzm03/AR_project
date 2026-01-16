@@ -220,10 +220,8 @@ async function send() {
 
   addMsg(character.value.name || "AI", data.text, true);
 
-  if (data.audioUrl) {
-    const src = data.audioUrl.startsWith("http")
-      ? data.audioUrl
-      : API_BASE + data.audioUrl;
+  if (data.audioBase64) {
+    const src = "data:audio/mp3;base64," + data.audioBase64;
 
     currentAudio = new Audio(src);
     playTalk();
