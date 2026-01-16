@@ -138,6 +138,7 @@ onMounted(async () => {
   character.value = await res.json();
 
   modelSrc.value = character.value.model.idle;
+  console.log("MODEL SRC = ", modelSrc.value);
   bgStyle.value = {
     background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
