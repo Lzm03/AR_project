@@ -137,21 +137,21 @@ onMounted(async () => {
 
   character.value = await res.json();
 
-  modelSrc.value = API_BASE + character.value.model.idle;
+  modelSrc.value = character.value.model.idle;
   bgStyle.value = {
-    background: `url(${API_BASE}${character.value.scene.bg}) center / cover no-repeat`
+    background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
 });
 
 /* ================= 3D 动画 ================= */
 function playIdle() {
   if (!character.value) return;
-  modelSrc.value = API_BASE + character.value.model.idle;
+  modelSrc.value = character.value.model.idle;
 }
 
 function playTalk() {
   if (!character.value) return;
-  modelSrc.value = API_BASE + character.value.model.talk;
+  modelSrc.value = character.value.model.talk;
 }
 
 /* ================= UI ================= */

@@ -97,6 +97,14 @@
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({
+  path: path.resolve(process.cwd(), ".env"),
+});
+
+console.log("Loaded FRONTEND_URL =", process.env.FRONTEND_URL);
 
 async function main() {
   console.log("Seeding SYSTEM USER...");
@@ -171,6 +179,7 @@ const EINSTEIN_PROMPT = `
 永遠唔提自己係 AI、模型或程式
 只以愛因斯坦本人身份同人傾偈
 `;
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
   const systemUser = await prisma.user.upsert({
     where: { email: "system@chopreality.ai" },
@@ -189,9 +198,9 @@ const EINSTEIN_PROMPT = `
       id: "confucius",
       name: "孔子",
       prompt: CONFUCIUS_PROMPT,
-      idleModel: "/models/idle.glb",
-      talkModel: "/models/talk.glb",
-      bgImage: "/bg/confucius.png",
+      idleModel: `${FRONTEND_URL}/models/idle.glb`,
+      talkModel: `${FRONTEND_URL}/models/talk.glb`,
+      bgImage: `${FRONTEND_URL}/bg/confucius.png`,
       voiceId: "ttv-voice-2026010717105726-MonsIoM4",
       userId: systemUser.id,
     },
@@ -208,9 +217,9 @@ const EINSTEIN_PROMPT = `
       id: "einstein",
       name: "愛因斯坦",
       prompt: EINSTEIN_PROMPT,
-      idleModel: "/models/einstein_idle.glb",
-      talkModel: "/models/einstein_talk.glb",
-      bgImage: "/bg/einstein.png",
+      idleModel: `${FRONTEND_URL}/models/einstein_idle.glb`,
+      talkModel: `${FRONTEND_URL}/models/einstein_talk.glb`,
+      bgImage: `${FRONTEND_URL}/bg/einstein.png`,
       voiceId: "English_Debator",
       userId: systemUser.id,
     },
