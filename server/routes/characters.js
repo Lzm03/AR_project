@@ -46,7 +46,7 @@ router.post(
     const move = (file, filename) => {
       const target = path.join(baseDir, filename);
       fs.renameSync(file.path, target);
-      return `/public/characters/${id}/${filename}`;
+      return `/characters/${id}/${filename}`;
     };
 
     // 1️⃣ 写 Character 表
