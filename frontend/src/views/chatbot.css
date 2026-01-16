@@ -49,6 +49,7 @@ body {
 }
 
 model-viewer {
+  display: block;           /* ⭐⭐⭐ 致命關鍵 */
   position: absolute; /* ⭐⭐ 這是關鍵 */
   z-index: 2;
   width: 100%;
