@@ -84,20 +84,19 @@ router.get("/:id", async (req, res) => {
   const c = await getCharacter(req.params.id);
   if (!c) return res.status(404).end();
 
-  const isSystem = c.userId === "SYSTEM_USER";
-
+  // 🔁 兼容前端的旧结构
   res.json({
     id: c.id,
     name: c.name,
     prompt: c.prompt,
 
     model: {
-      idle: isSystem ? "/models/idle.glb" : c.idleModel,
-      talk: isSystem ? "/models/talk.glb" : c.talkModel,
+      idle: c.idleModel,
+      talk: c.talkModel,
     },
 
     scene: {
-      bg: isSystem ? "/bg/confucius.png" : c.bgImage,
+      bg: c.bgImage,
     },
 
     voice: {
@@ -107,7 +106,6 @@ router.get("/:id", async (req, res) => {
     createdAt: c.createdAt,
   });
 });
-
 
 
 
