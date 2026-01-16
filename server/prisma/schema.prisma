@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  sessions  Session[]
+  libraries LibraryItem[]
+  characters Character[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model LibraryItem {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  characterId String   @unique
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+
+model Character {
+  id        String   @id
+  name      String
+  prompt    String
+
+  idleModel String
+  talkModel String
+  bgImage   String
+
+  voiceId   String
+
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  libraryItem LibraryItem?
+}
+

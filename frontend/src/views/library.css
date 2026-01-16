@@ -1,0 +1,280 @@
+:root{
+  --bg:#050816;
+  --card-bg:rgba(15,23,42,0.92);
+  --border:rgba(148,163,184,0.35);
+  --accent:#0a84ff;
+  --text-main:#f5f5f7;
+  --text-sub:#9ea0af;
+  --radius-xl:24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  min-height:100vh;
+  font-family:-apple-system, BlinkMacSystemFont, system-ui;
+  background:#ffffff;
+  color:var(--text-main);
+}
+
+/* ===== Shell ===== */
+.library-shell{
+  width:100%;
+  min-height:100vh;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  background:rgb(255, 255, 255);
+}
+
+/* ===== Top Bar ===== */
+.top-bar{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 14px;
+  border-radius:999px;
+
+  /* 玻璃风 */
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px) saturate(160%);
+
+  /* 边框 + 阴影 */
+  border:1px solid rgba(255,255,255,0.35);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.5);
+
+  font-size:13px;
+}
+
+
+.top-left{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.logo-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:linear-gradient(135deg,#ff3b30,#ff9f0a);
+  box-shadow:0 0 12px rgba(255,149,0,.8);
+}
+
+.top-title{
+  font-size:11px;
+  letter-spacing:.12em;
+  font-weight:600;
+  color: #050507;
+}
+
+.top-sub{
+  font-size:11px;
+  color:var(--text-sub);
+  color: #050507;
+}
+
+.top-right{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.chip{
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-sub);
+}
+
+.link-btn{
+  -webkit-appearance:none;
+  appearance:none;
+  border:none;
+  border-radius:999px;
+  padding:8px 18px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.02em;
+  cursor:pointer;
+  color:#111;
+
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,0.95),
+    rgba(245,245,250,0.9)
+  );
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.link-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.95);
+}
+
+.btn:active{
+  transform:translateY(0);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.2),
+    inset 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.link-btn.accent{
+  background:var(--accent);
+  /* border-color:var(--accent); */
+}
+
+/* ===== Main Card ===== */
+.main-card{
+  width:100%;
+  flex:1;
+  border-radius:var(--radius-xl);
+  border:1px solid #e6e8ec;
+
+  background:rgba(255, 255, 255, 0.97);
+  backdrop-filter:blur(20px);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.08),
+    0 2px 4px rgba(0,0,0,0.04);
+
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  position: relative;  /* ← 新增 */
+}
+
+.create-btn{
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+
+.main-title{
+  font-size:22px;
+  font-weight:600;
+  color: #050507;
+}
+
+.main-sub{
+  font-size:13px;
+  /* color:var(--text-sub); */
+  color: #050507;
+}
+
+.pill-row{
+  margin-top:6px;
+  display:flex;
+  gap:8px;
+}
+
+.pill{
+  padding:4px 9px;
+  border-radius:999px;
+  border:0.5px solid rgb(184, 127, 127);
+  font-size:11px;
+  color: #050507;
+}
+
+/* ===== Content ===== */
+.library-content{
+  flex:1;
+}
+
+/* Empty */
+.empty-state{
+  padding:16px;
+  font-size:13px;
+  color: #050507;
+  border-radius:16px;
+  border:1px dashed rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Project Grid ===== */
+.project-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+}
+
+/* Card */
+.project-card{
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(148,163,184,.25);
+  background:rgba(15,23,42,.9);
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+
+.project-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(0,0,0,.45);
+}
+
+/* ===== 3D Preview ===== */
+.card-preview{
+  width:100%;
+  height:160px;
+  border-radius:14px;
+  overflow:hidden;
+  background:radial-gradient(circle at top, #1a1a1f, #050507);
+  margin-bottom:10px;
+}
+
+.card-preview model-viewer{
+  width:100%;
+  height:100%;
+  background:transparent;
+  pointer-events:none; /* 🔒 禁止交互 */
+}
+
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.card-title{
+  font-size:14px;
+  font-weight:500;
+}
+
+.card-tag{
+  font-size:11px;
+  padding:3px 7px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  color:var(--text-sub);
+}
+
+.card-meta{
+  margin-top:10px;
+  font-size:11px;
+  color:var(--text-sub);
+  display:flex;
+  justify-content:space-between;
+}
+
+/* Footer */
+.footer{
+  font-size:11px;
+  color:var(--text-sub);
+  text-align:right;
+}
+
