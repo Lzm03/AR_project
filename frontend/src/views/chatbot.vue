@@ -3,13 +3,13 @@
     <!-- 左侧 3D + 背景 -->
     <div id="vr" :style="bgStyle">
       <model-viewer
+        v-if="modelSrc"
         :src="modelSrc"
         autoplay
-        camera-controls
-        auto-rotate
         interaction-prompt="none"
         environment-image="neutral"
         exposure="1.0"
+        style="background: transparent"
       />
     </div>
 
