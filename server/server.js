@@ -117,7 +117,8 @@ export function startServer() {
 
   /* ===== 🔥 关键：一定要在最前面暴露 public ===== */
   console.log("📂 Public dir:", PUBLIC_DIR);
-  app.use("/public", express.static(PUBLIC_DIR));
+  app.use(express.static(PUBLIC_DIR));
+
 
   /* ===== API ===== */
   app.use("/api/auth", authRouter);
