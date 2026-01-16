@@ -49,7 +49,8 @@ router.post("/login", async (req, res) => {
 
     res.cookie("sid", sid, {
       httpOnly: true,
-      sameSite: "lax",
+      secure: true,        // 🔥 一定要
+      sameSite: "none",    // 🔥 一定要
       maxAge: 1000 * 60 * 60 * 2, // ✅ 2 小时
       path: "/",                 // ✅ 明确路径
     });
