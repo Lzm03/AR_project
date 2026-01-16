@@ -108,7 +108,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const API_BASE = "http://localhost:3001";
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:3001"
+  : import.meta.env.VITE_API_BASE;
 
 const loading = ref(false);
 const form = ref({

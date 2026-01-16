@@ -82,6 +82,11 @@
 <script>
 import "./login.css";
 
+
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:3001"
+  : import.meta.env.VITE_API_BASE;
+
 export default {
   name: "Login",
   data() {
@@ -90,7 +95,7 @@ export default {
       password: "",
       msg: "",
       loading: false,
-      API_BASE: "http://localhost:3001",
+      API_BASE: API_BASE,
     };
   },
   methods: {

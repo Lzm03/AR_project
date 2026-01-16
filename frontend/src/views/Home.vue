@@ -130,12 +130,17 @@
 <script>
 import "./home.css";
 
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:3001"
+  : import.meta.env.VITE_API_BASE;
+
+
 export default {
   name: "Home",
 
   data() {
     return {
-      API_BASE: "http://localhost:3001",
+      API_BASE: API_BASE,
       user: null,
       authLoading: true,
 

@@ -82,8 +82,14 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 /* ================= 配置 ================= */
-const API_BASE = "http://localhost:3001";
-const WS_BASE  = "ws://localhost:3001";
+const API_BASE = import.meta.env.DEV
+  ? "http://localhost:3001"
+  : import.meta.env.VITE_API_BASE;
+
+const WS_BASE = import.meta.env.DEV
+  ? "ws://localhost:3001"
+  : import.meta.env.VITE_WS_BASE;
+
 
 /* ================= 路由 / 角色 ================= */
 const route = useRoute();
