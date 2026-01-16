@@ -97,14 +97,6 @@
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-import path from "path";
-import dotenv from "dotenv";
-
-dotenv.config({
-  path: path.resolve(process.cwd(), ".env"),
-});
-
-console.log("Loaded FRONTEND_URL =", process.env.FRONTEND_URL);
 
 async function main() {
   console.log("Seeding SYSTEM USER...");
@@ -198,9 +190,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
       id: "confucius",
       name: "孔子",
       prompt: CONFUCIUS_PROMPT,
-      idleModel: `${FRONTEND_URL}/models/idle.glb`,
-      talkModel: `${FRONTEND_URL}/models/talk.glb`,
-      bgImage: `${FRONTEND_URL}/bg/confucius.png`,
+      idleModel: "/models/idle.glb",
+      talkModel: "/models/talk.glb",
+      bgImage: "/bg/confucius.png",
       voiceId: "ttv-voice-2026010717105726-MonsIoM4",
       userId: systemUser.id,
     },
@@ -217,9 +209,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
       id: "einstein",
       name: "愛因斯坦",
       prompt: EINSTEIN_PROMPT,
-      idleModel: `${FRONTEND_URL}/models/einstein_idle.glb`,
-      talkModel: `${FRONTEND_URL}/models/einstein_talk.glb`,
-      bgImage: `${FRONTEND_URL}/bg/einstein.png`,
+      idleModel: "/models/einstein_idle.glb",
+      talkModel: "/models/einstein_talk.glb",
+      bgImage: "/bg/einstein.png",
       voiceId: "English_Debator",
       userId: systemUser.id,
     },
