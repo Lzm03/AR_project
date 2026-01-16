@@ -1,19 +1,17 @@
 <template>
   <div id="app">
     <!-- 左侧 3D + 背景 -->
-    <div id="vr" :style="bgStyle">
-      <model-viewer
-        v-show="modelSrc"
-        :src="modelSrc"
-        autoplay
-        camera-controls
-        auto-rotate
-        interaction-prompt="none"
-        environment-image="neutral"
-        exposure="1.0"
-        style="width:100%; height:100%; background: transparent"
-      />
-    </div>
+    <model-viewer
+      :src="modelSrc || undefined"
+      autoplay
+      camera-controls
+      auto-rotate
+      interaction-prompt="none"
+      environment-image="neutral"
+      exposure="1.0"
+      style="width:100%; height:100%; background: transparent"
+    />
+
 
     <!-- 右侧聊天 -->
     <div id="panel">
@@ -107,6 +105,7 @@ const prompt = ref("");
 
 const isLocked = ref(false);
 const isRecording = ref(false);
+
 
 /* ================= 全局变量 ================= */
 let currentAudio = null;
