@@ -104,12 +104,12 @@ import libraryRouter from "./routes/library.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export function startServer(port = 3001) {
+export function startServer() {
   const app = express();
 
   /* ===== 基础中间件 ===== */
   app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   }));
   app.use(express.json());
@@ -131,7 +131,10 @@ export function startServer(port = 3001) {
   const server = http.createServer(app);
   setupSpeechWS(server);
 
-  server.listen(port, "0.0.0.0", () => {
-    console.log(`✅ Server listening on http://localhost:${port}`);
+  const PORT = process.env.PORT || 3001;
+
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
+
 }
