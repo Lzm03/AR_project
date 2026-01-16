@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/models/(.*)",
+      "destination": "/models/$1"
+    },
+    {
+      "source": "/bg/(.*)",
+      "destination": "/bg/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
