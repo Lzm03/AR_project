@@ -94,6 +94,8 @@ const WS_BASE = import.meta.env.DEV
 /* ================= 路由 / 角色 ================= */
 const route = useRoute();
 const characterId = route.params.id;
+const fromPreset = ref(false);
+
 
 
 const character = ref(null);
@@ -143,9 +145,11 @@ onMounted(async () => {
   bgStyle.value = {
     background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
+
   const q = route.query.q;
   if (q) {
     addMsg("你", q); 
+    fromPreset.value = true; 
   }
 });
 
