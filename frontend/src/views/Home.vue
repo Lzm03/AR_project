@@ -75,10 +75,11 @@
         <div class="character-grid">
           <!-- 孔子 -->
           <div
-            class="character-card clickable-card"
+            class="character-card character-confucius clickable-card"
             @click="goCharacter('confucius')"
           >
             <div class="character-avatar">孔子</div>
+            <div class="character-quotes">
             <div
               class="character-quote clickable-quote"
               @click.stop="goQuote('confucius', '如果同學欺負我，我該「以德報怨」嗎？')"
@@ -97,14 +98,16 @@
             >
               「學而時習之」為什麼會快樂？
             </div>
+            </div>
           </div>
 
           <!-- 牛顿 -->
           <div
-            class="character-card clickable-card"
+            class="character-card character-newton clickable-card"
             @click="goCharacter('newton')"
           >
             <div class="character-avatar">牛頓</div>
+            <div class="character-quotes">
             <div
               class="character-quote clickable-quote"
               @click.stop="goQuote('newton', '如果穿越回現代，你會先學物理,化學...')"
@@ -123,14 +126,16 @@
             >
               網絡上有很多‘知識分享者’，你會想當...
             </div>
+            </div>
           </div>
 
           <!-- 愛因斯坦 -->
           <div
-            class="character-card clickable-card"
+            class="character-card character-einstein clickable-card"
             @click="goCharacter('einstein')"
           >
             <div class="character-avatar">愛因斯坦</div>
+            <div class="character-quotes">
             <div
               class="character-quote clickable-quote"
               @click.stop="goQuote('einstein', '你覺得AI聰明，還是人腦聰明？')"
@@ -148,6 +153,7 @@
               @click.stop="goQuote('einstein', '你考試也不及格過嗎？你怎麼面對失敗？')"
             >
               你考試也不及格過嗎？你怎麼面對失敗？
+            </div>
             </div>
           </div>
         </div>

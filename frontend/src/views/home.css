@@ -75,38 +75,60 @@
   margin:0 auto;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:32px;
+  gap:80px;
 }
 
 .character-card{
-  background: #e1e1e1;
+  background-color: #f5eeee;
   border-radius:28px;
   padding:32px 24px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:18px;
   box-shadow:0 18px 40px rgba(0,0,0,0.08);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 孔子 */
+.character-confucius {
+  background-image: url('/character/bg-confucius.png');
+}
+
+/* 牛顿 */
+.character-newton {
+  background-image: url("/images/bg-newton.jpg");
+}
+
+/* 愛因斯坦 */
+.character-einstein {
+  background-image: url("/character/bg-einstein.png");
 }
 
 /* ===== Avatar ===== */
 .character-avatar{
-  width:104px;
-  height:104px;
-  border-radius:50%;
-  background:#111;
-  color:#fff;
+  color:#000000;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:600;
-  font-size: 20px;
+  font-weight:800;
+  font-size: 30px;
+  transform: translateY(-20px);
 }
 
 .character-quote{
   font-size:13px;
-  color:#5f6368;
+  color:#000000;
   text-align:center;
+}
+
+.character-quotes .character-quote {
+  margin: 8px 0;
+}
+
+.character-quotes {
+  margin-top: 150px;   /* 任意数字，完全不影响 card 的 gap */
 }
 
 /* ===== Interaction ===== */
@@ -134,10 +156,10 @@
 }
 
 .clickable-quote {
-  background: rgba(200, 248, 255, 0.8); 
+  background: rgba(183, 228, 221, 0.8); 
   padding: 6px 10px;
   border-radius: 8px;
-  margin: 4px 0;
+  margin: 1px 0;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -146,8 +168,6 @@
   background: rgb(255, 255, 255);
   transform: translateY(-2px);
 }
-
-
 
 /* ===== Hero ===== */
 .hero-title{
