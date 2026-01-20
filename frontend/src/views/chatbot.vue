@@ -145,9 +145,7 @@ onMounted(async () => {
   };
   const q = route.query.q;
   if (q) {
-    // UI 显示“你：xxx”
-    prompt.value = q;
-    await send();      
+    addMsg("你", q); 
   }
 });
 

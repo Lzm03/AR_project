@@ -63,7 +63,7 @@
 /* ===== Section Title ===== */
 .section-title{
   text-align:center;
-  font-size:30px;
+  font-size:50px;
   font-weight:600;
   margin-bottom:48px;
   color:#0b0b0d;
@@ -134,7 +134,7 @@
 }
 
 .clickable-quote {
-  background: rgba(255, 240, 200, 0.8); 
+  background: rgba(200, 248, 255, 0.8); 
   padding: 6px 10px;
   border-radius: 8px;
   margin: 4px 0;
@@ -143,7 +143,7 @@
 }
 
 .clickable-quote:hover {
-  background: rgba(255, 210, 130, 1);
+  background: rgb(255, 255, 255);
   transform: translateY(-2px);
 }
 

@@ -70,7 +70,7 @@
       <!-- ===== GRID 3：Characters（原样保留，不允许修改）===== -->
       <!-- ================================================= -->
       <section class="section section-characters">
-        <h2 class="section-title">立即問名人問題</h2>
+        <h2 class="section-title">立刻和世界上的名人聊天</h2>
 
         <div class="character-grid">
           <!-- 孔子 -->
@@ -83,22 +83,46 @@
               class="character-quote clickable-quote"
               @click.stop="goQuote('confucius', '如果同學欺負我，我該「以德報怨」嗎？')"
             >
-              「如果同學欺負我，我該『以德報怨』嗎？」
+              如果同學欺負我，我該「以德報怨」嗎？
             </div>
-
-            <div class="character-quote">「你覺得現在的學生和古代的學生，誰的壓力更大？」</div>
-            <div class="character-quote">「『學而時習之』為什麼會快樂？我考試前複習一點也不快樂。」</div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('confucius', '你覺得現在的學生和古代的學生，誰...')"
+            >
+              你覺得現在的學生和古代的學生，誰...
+            </div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('confucius', '「學而時習之」為什麼會快樂？')"
+            >
+              「學而時習之」為什麼會快樂？
+            </div>
           </div>
 
-          <!-- 孫中山 -->
+          <!-- 牛顿 -->
           <div
             class="character-card clickable-card"
-            @click="goCharacter('sun-yat-sen')"
+            @click="goCharacter('newton')"
           >
-            <div class="character-avatar">孫中山</div>
-            <div class="character-quote">「你當時為什麼要革命？不害怕嗎？」</div>
-            <div class="character-quote">「對於現在的香港青年，你有什麼寄語？」</div>
-            <div class="character-quote">「你覺得怎樣才算是一個好的領袖？」</div>
+            <div class="character-avatar">牛頓</div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('newton', '如果穿越回現代，你會先學物理,化學...')"
+            >
+              如果穿越回現代，你會先學物理,化學...
+            </div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('newton', '你發明了那麼多東西，有沒有哪個是...')"
+            >
+              你發明了那麼多東西，有沒有哪個是...
+            </div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('newton', '網絡上有很多‘知識分享者’，你會想當...')"
+            >
+              網絡上有很多‘知識分享者’，你會想當...
+            </div>
           </div>
 
           <!-- 愛因斯坦 -->
@@ -107,9 +131,24 @@
             @click="goCharacter('einstein')"
           >
             <div class="character-avatar">愛因斯坦</div>
-            <div class="character-quote">「你覺得AI聰明，還是人腦聰明？」</div>
-            <div class="character-quote">「你的相對論是怎麼想出來的？是做了很多實驗嗎？」</div>
-            <div class="character-quote">「你考試也不及格過嗎？你怎麼面對失敗？」</div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('einstein', '你覺得AI聰明，還是人腦聰明？')"
+            >
+              你覺得AI聰明，還是人腦聰明？
+            </div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('einstein', '你的相對論是怎麼想出來的？是做了...')"
+            >
+              你的相對論是怎麼想出來的？是做了...
+            </div>
+            <div
+              class="character-quote clickable-quote"
+              @click.stop="goQuote('einstein', '你考試也不及格過嗎？你怎麼面對失敗？')"
+            >
+              你考試也不及格過嗎？你怎麼面對失敗？
+            </div>
           </div>
         </div>
       </section>
