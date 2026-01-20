@@ -288,6 +288,12 @@ async function toggleMic() {
 
     prompt.value = d.text;
     if (d.final) {
+      // ⭐ 如果是从首页跳过来的 preset，不允许自动 send()
+      if (fromPreset.value) {
+        fromPreset.value = false;
+        prompt.value = "";       // 避免自动送出 quote
+        return;
+      }
       send();
       stopMic();
     }
