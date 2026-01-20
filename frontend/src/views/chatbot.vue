@@ -95,6 +95,7 @@ const WS_BASE = import.meta.env.DEV
 const route = useRoute();
 const characterId = route.params.id;
 
+
 const character = ref(null);
 const modelSrc = ref("");
 const bgStyle = ref({});
@@ -142,6 +143,12 @@ onMounted(async () => {
   bgStyle.value = {
     background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
+  const q = route.query.q;
+  if (q) {
+    // UI 显示“你：xxx”
+    prompt.value = q;
+    await send();      
+  }
 });
 
 /* ================= 3D 动画 ================= */

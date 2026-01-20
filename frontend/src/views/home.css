@@ -133,6 +133,21 @@
   box-shadow:0 28px 60px rgba(0,0,0,0.12);
 }
 
+.clickable-quote {
+  background: rgba(255, 240, 200, 0.8); 
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.clickable-quote:hover {
+  background: rgba(255, 210, 130, 1);
+  transform: translateY(-2px);
+}
+
+
 
 /* ===== Hero ===== */
 .hero-title{
@@ -323,4 +338,464 @@
   box-shadow:
     0 10px 30px rgba(10,99,255,0.45),
     inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+/* ================================================= */
+/* ========== HERO 下方橙色信息条（100%一致）========= */
+/* ================================================= */
+
+.hero-info-section {
+  width: 100vw;
+  background: #e55317;          /* 橙底 */
+  padding: 80px 40px;           /* screenshot 的上下留白 */
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 15vw;
+}
+
+.hero-info-title {
+  font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  font-size: 30px;              /* screenshot 大小 */
+  font-weight: 450;
+  color: #ffffff;
+  margin-bottom: 5px;
+  letter-spacing: 0.02em;
+}
+
+.hero-info-text {
+  font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 350;
+  line-height: 1.7;             /* screenshot 的行高 */
+  color: #ffffff;
+  max-width: 1000px;
+  margin: 0 auto;
+  letter-spacing: 0.02em;
+}
+
+
+
+
+/* ================================
+   GRID 4 – AI 設計工具（像素級）
+================================ */
+
+.section-tools{
+  background:#ffffff; /* 期望截图的浅绿色 */
+}
+
+.tools-container{
+  max-width:1280px;
+  margin:0 auto;
+}
+
+/* ===== 顶部标题行 ===== */
+.tools-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:56px;
+}
+
+.tools-title{
+  font-size:44px;
+  line-height:1.2;
+  font-weight:800;
+  color:#000000; /* 纯黑 */
+  margin:0;
+  letter-spacing:-0.01em;
+}
+
+/* 查看更多按钮 */
+.tools-more{
+  border:none;
+  padding:14px 28px;
+  border-radius:999px;
+  background:#e8edff;
+  color:#2563eb;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* ===== 工具区 ===== */
+.tools-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:32px 40px;
+}
+
+/* ===== 单个工具卡 ===== */
+.tool-card{
+  background:#ffffff;
+  border-radius:28px;
+  padding:28px 32px;
+  display:flex;
+  align-items:center;
+  gap:28px;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.04); /* 非常轻的阴影 */
+}
+
+/* 左侧渐变图块（严格比例） */
+.tool-icon{
+  width:120px;
+  height:120px;
+  border-radius:24px;
+  flex-shrink:0;
+}
+
+/* 渐变占位（模拟你截图里的图） */
+.gradient-a{
+  background:linear-gradient(135deg,#ff7ab6,#ffd36a);
+}
+.gradient-b{
+  background:linear-gradient(135deg,#ff86a0,#ffcf7a);
+}
+.gradient-c{
+  background:linear-gradient(135deg,#ff8fa3,#ffc27a);
+}
+.gradient-d{
+  background:linear-gradient(135deg,#ff9a7a,#ffd07a);
+}
+
+/* 右侧文字 */
+.tool-text{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.tool-name{
+  font-size:22px;
+  font-weight:700;
+  color:#000000; /* 关键：纯黑 */
+}
+
+.tool-desc{
+  font-size:16px;
+  line-height:1.6;
+  color:#444444; /* 深灰，不是浅灰 */
+}
+
+
+
+/* ================================================= */
+/* =============== GRID 5：视频区 =================== */
+/* ================================================= */
+
+.section-video {
+  background:#ffffff;
+  padding:96px 40px;
+}
+
+.video-container {
+  max-width:1200px;
+  margin:0 auto;
+  height:560px;
+  border-radius:28px;
+  background:#191919;
+  position:relative;
+}
+
+.placeholder-dark {
+  background:#2c2c2c;
+}
+
+.placeholder-light {
+  background:#dcdcdc;
+}
+
+.video-sidebar {
+  position:absolute;
+  left:24px;
+  top:24px;
+  width:260px;
+  height:calc(100% - 48px);
+  border-radius:20px;
+}
+
+.video-chat {
+  position:absolute;
+  right:24px;
+  top:24px;
+  width:420px;
+  height:380px;
+  border-radius:20px;
+}
+
+.video-input {
+  position:absolute;
+  right:24px;
+  bottom:24px;
+  width:420px;
+  height:72px;
+  border-radius:20px;
+}
+
+/* =================================================
+   GRID 6 – 教育政策整合（100% 像素级）
+================================================= */
+
+.edu-section{
+  width:100%;
+  background:#ffffff;
+  padding:160px 0 180px;
+}
+
+/* ---------- 上半区 ---------- */
+
+.edu-hero{
+  max-width:1200px;
+  margin:0 auto 140px;
+  text-align:center;
+}
+
+.edu-sub{
+  color:#ff6a33;
+  font-weight:700;
+  font-size:18px;
+  margin-bottom:16px;
+}
+
+.edu-title{
+  font-size:56px;
+  font-weight:900;
+  line-height:1.25;
+  color:#000000;
+  margin-bottom:36px;
+}
+
+.edu-tags{
+  display:flex;
+  justify-content:center;
+  gap:24px;
+}
+
+.edu-tag{
+  border:2px solid #ff6a33;
+  color:#ff6a33;
+  padding:12px 28px;
+  border-radius:999px;
+  font-size:16px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+/* ---------- 下半区 ---------- */
+
+.edu-policy{
+  max-width:1400px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:520px 1fr;
+  column-gap:120px;
+  align-items:start; /* 关键 */
+}
+
+
+/* 左侧 */
+.policy-left{
+  width:520px;
+  margin:0 auto;            /* 👈 关键：左 column 内水平居中 */
+  text-align:left;
+
+  transform: translateY(140px); /* 下移到下半区中段 */
+}
+
+
+
+.policy-label{
+  font-size:20px;
+  font-weight:700;
+  color:#ff6a33;
+  margin-bottom:10px;
+  transform: translateX(200px); 
+
+}
+
+.policy-line{
+  width:350px;
+  height:1px;
+  background:#000000;
+  margin-bottom:20px;
+  transform: translateX(122px); 
+}
+
+.policy-logo{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:#e74c3c;
+  margin-bottom:36px;
+  transform: translateX(200px); 
+}
+
+.policy-text{
+  font-size:18px;
+  line-height:1.85;
+  color:#000;
+  transform: translateX(105px); 
+  width: 400px;
+}
+
+/* 右侧插画 */
+.policy-image{
+  width:100%;
+  height:640px;
+  background:#d6e7ff;
+  border-radius:48px;
+}
+
+
+/* =============================================== */
+/* ================= GRID 7 ====================== */
+/* =============================================== */
+
+.advantages-section {
+  width: 100%;
+  background: #ffffff;
+  padding: 160px 0 200px;
+  position: relative;
+}
+
+/* 上方淡淡大字 */
+.adv-bg-title {
+  width: 100%;
+  text-align: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.04);  /* screenshot 的淡字效果 */
+  margin-bottom: -40px;
+  user-select: none;
+}
+
+/* 主标题 */
+.adv-main-title {
+  text-align: center;
+  font-size: 54px;
+  font-weight: 800;
+  margin-bottom: 80px;
+  color: #000;
+}
+
+/* ===== 大白色卡片容器 ===== */
+.advantages-wrapper {
+  width: 86%;
+  max-width: 1500px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 120px 50px;
+  border-radius: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 40px;
+  box-shadow:
+    0 40px 90px rgba(0,0,0,0.06),
+    0 6px 10px rgba(0,0,0,0.03);
+}
+
+/* ===== 单个卡片（透明背景） ===== */
+.adv-item {
+  text-align: center;
+}
+
+/* 图标圆形占位 */
+.adv-icon {
+  width: 180px;
+  height: 180px;
+  background: #dcdcdc;
+  border-radius: 50%;
+  margin: 0 auto 32px;
+}
+
+/* 标题（橙色）*/
+.adv-item-title {
+  font-size: 34px;
+  font-weight: 800;
+  color: #ff6535;
+  margin-bottom: 18px;
+}
+
+/* 描述 */
+.adv-item-desc {
+  font-size: 22px;
+  color: #444444;
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+
+/* ================================================= */
+/* =============== GRID 8：CTA ===================== */
+/* ================================================= */
+
+/* ===== 顶部橙色横条（全宽） ===== */
+.cta-bar{
+  width:100%;
+  background:#e85a0c;          /* 橙色完全对齐截图 */
+  color:#ffffff;
+  font-size:22px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  text-align:center;
+  padding:28px 20px;
+}
+
+/* ===== CTA 主区 ===== */
+.section-cta{
+  background:#ffffff;          /* 浅绿色背景 */
+  padding:160px 40px 180px;
+}
+
+.cta-inner{
+  max-width:900px;
+  margin:0 auto;
+  text-align:center;
+}
+
+/* 橙色小标题 */
+.cta-sub{
+  font-size:22px;
+  font-weight:700;
+  color:#ff6a33;
+  margin-bottom:24px;
+}
+
+/* 主标题（严格字号 + 行距） */
+.cta-title{
+  font-size:52px;
+  font-weight:800;
+  line-height:1.35;
+  color:#000000;
+  margin-bottom:56px;
+}
+
+/* CTA 按钮（尺寸 / 阴影 / 圆角 完全对齐） */
+.cta-btn{
+  appearance:none;
+  border:none;
+  background:#ff6a33;
+  color:#ffffff;
+  font-size:22px;
+  font-weight:700;
+  padding:22px 72px;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 18px 40px rgba(0,0,0,0.18);
+}
+
+.cta-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 22px 48px rgba(0,0,0,0.22);
+}
+
+.cta-btn:active{
+  transform:translateY(0);
+  box-shadow:0 12px 28px rgba(0,0,0,0.2);
 }
