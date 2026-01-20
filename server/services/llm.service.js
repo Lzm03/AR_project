@@ -49,7 +49,6 @@ export async function askLLM(systemPrompt, userPrompt) {
         { role: "user", content: userPrompt }
       ],
       temperature: 0.6,
-      stream: true
     })
   });
 
