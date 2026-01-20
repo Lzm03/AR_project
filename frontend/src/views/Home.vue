@@ -347,11 +347,18 @@ export default {
   name: "Home",
   data() {
     return {
+      API_BASE: "http://localhost:3001",
       user: null,
       authLoading: true,
+
+      TOMATO_TOTAL_FRAMES: 64,
+      TOMATO_SCALE_FROM: 1.0,
+      TOMATO_SCALE_TO: 1.6,
+
       tomatoFrameIndex: 1,
       targetFrame: 1,
       timer: null,
+      isHover: false,
     };
   },
 
@@ -363,12 +370,20 @@ export default {
 
   mounted() {
     this.preloadFrames();
+    this.updateMouthScale();
+    window.addEventListener("resize", this.updateMouthScale);
     this.bindTomatoEvents();
     this.refreshAuth();
   },
 
+    beforeUnmount() {
+    window.removeEventListener("resize", this.updateMouthScale);
+    if (this.timer) clearInterval(this.timer);
+  },
+
   methods: {
     goLogin() { location.href = "/login"; },
+
     go(path) { location.href = path; },
 
     goCharacter(id) {
@@ -380,33 +395,99 @@ export default {
     },
 
 
+    /* ===== Auth ===== */
     async refreshAuth() {
       this.authLoading = true;
       try {
-        const res = await fetch(`/api/auth/me`, {
+        const res = await fetch(`${this.API_BASE}/api/auth/me`, {
           credentials: "include",
+          cache: "no-store",
         });
-        this.user = res.ok ? await res.json() : null;
+        if (!res.ok) throw 0;
+        this.user = await res.json();
       } catch {
         this.user = null;
+      } finally {
+        this.authLoading = false;
       }
-      this.authLoading = false;
     },
 
+    async logout() {
+      await fetch(`${this.API_BASE}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      location.reload();
+    },
+
+    /* ===== Tomato 动画 ===== */
     preloadFrames() {
-      for (let i = 1; i <= 64; i++) {
+      for (let i = 1; i <= this.TOMATO_TOTAL_FRAMES; i++) {
         const img = new Image();
         img.src = `/frames/frame_${String(i).padStart(3, "0")}.png`;
       }
     },
 
-    bindTomatoEvents() {},
+    updateMouthScale() {
+      const refWidth = 640;
+      const w = this.$refs.tomatoWrapper?.offsetWidth || refWidth;
+      const scale = Math.max(0.5, Math.min(1.1, w / refWidth));
+      document.documentElement.style.setProperty("--mouth-scale", scale.toFixed(3));
+    },
 
-    logout() {
-      fetch(`/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      }).then(() => location.reload());
+    updateFrame(i) {
+      const progress = (i - 1) / (this.TOMATO_TOTAL_FRAMES - 1);
+      const s =
+        this.TOMATO_SCALE_FROM +
+        (this.TOMATO_SCALE_TO - this.TOMATO_SCALE_FROM) * progress;
+
+      this.$refs.tomatoWrapper
+        .querySelector(".tomato-frame")
+        .style.transform = `scale(${s})`;
+
+      const openThreshold = this.TOMATO_TOTAL_FRAMES - 6;
+      if (i >= openThreshold && this.isHover) {
+        this.$refs.tomatoOverlay.classList.add("visible");
+      } else {
+        this.$refs.tomatoOverlay.classList.remove("visible");
+      }
+    },
+
+    startAnim() {
+      if (this.timer) return;
+      this.timer = setInterval(() => {
+        if (this.tomatoFrameIndex === this.targetFrame) {
+          clearInterval(this.timer);
+          this.timer = null;
+          return;
+        }
+        this.tomatoFrameIndex +=
+          this.tomatoFrameIndex < this.targetFrame ? 1 : -1;
+        this.updateFrame(this.tomatoFrameIndex);
+      }, 12);
+    },
+
+    bindTomatoEvents() {
+      const w = this.$refs.tomatoWrapper;
+
+      w.addEventListener("mouseenter", () => {
+        this.isHover = true;
+        this.targetFrame = this.TOMATO_TOTAL_FRAMES;
+        this.startAnim();
+      });
+
+      w.addEventListener("mouseleave", () => {
+        this.isHover = false;
+        this.$refs.tomatoOverlay.classList.remove("visible");
+        this.targetFrame = 1;
+        this.startAnim();
+      });
+
+      w.addEventListener("click", () => {
+        if (this.$refs.tomatoOverlay.classList.contains("visible")) {
+          this.$refs.fileInput.click();
+        }
+      });
     },
 
     triggerUpload() {
@@ -414,7 +495,8 @@ export default {
     },
 
     onFileChange(e) {
-      console.log("Uploaded:", e.target.files?.[0]);
+      const file = e.target.files?.[0];
+      if (file) console.log(file.name);
     },
   },
 };
