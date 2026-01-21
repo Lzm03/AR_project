@@ -75,7 +75,7 @@
         <div class="character-grid">
           <!-- 孔子 -->
           <div
-            class="character-card character-confucius clickable-card"
+            class="character-card character-confucius clickable-card scroll-reveal reveal-scale"
             @click="goCharacter('confucius')"
           >
             <div class="character-avatar">孔子</div>
@@ -103,7 +103,7 @@
 
           <!-- 牛顿 -->
           <div
-            class="character-card character-newton clickable-card"
+            class="character-card character-newton clickable-card scroll-reveal reveal-scale"
             @click="goCharacter('newton')"
           >
             <div class="character-avatar">牛頓</div>
@@ -131,7 +131,7 @@
 
           <!-- 愛因斯坦 -->
           <div
-            class="character-card character-einstein clickable-card"
+            class="character-card character-einstein clickable-card scroll-reveal reveal-scale"
             @click="goCharacter('einstein')"
           >
             <div class="character-avatar">愛因斯坦</div>
@@ -160,7 +160,7 @@
       </section>
 
       <!-- ===== 第 4 格：AI 設計工具 ===== -->
-      <section class="section section-tools">
+      <section class="section section-tools scroll-reveal">
         <div class="tools-container">
 
           <!-- 顶部标题行 -->
@@ -179,7 +179,7 @@
           <div class="tools-grid">
 
             <!-- 工具 1 -->
-            <div class="tool-card">
+            <div class="tool-card scroll-reveal reveal-scale">
               <div class="tool-icon gradient-a"></div>
               <div class="tool-text">
                 <div class="tool-name">數字人生成工具</div>
@@ -188,7 +188,7 @@
             </div>
 
             <!-- 工具 2 -->
-            <div class="tool-card">
+            <div class="tool-card scroll-reveal reveal-scale">
               <div class="tool-icon gradient-b"></div>
               <div class="tool-text">
                 <div class="tool-name">圖像生成工具</div>
@@ -197,7 +197,7 @@
             </div>
 
             <!-- 工具 3 -->
-            <div class="tool-card">
+            <div class="tool-card scroll-reveal reveal-scale">
               <div class="tool-icon gradient-c"></div>
               <div class="tool-text">
                 <div class="tool-name">視頻生成工具</div>
@@ -206,7 +206,7 @@
             </div>
 
             <!-- 工具 4 -->
-            <div class="tool-card">
+            <div class="tool-card scroll-reveal reveal-scale">
               <div class="tool-icon gradient-d"></div>
               <div class="tool-text">
                 <div class="tool-name">音頻生成工具</div>
@@ -219,15 +219,21 @@
       </section>
 
       <!-- ================================================= -->
-      <!-- ===== GRID 5：视频 整块区域（按 screenshot）===== -->
+      <!-- ===== GRID 5：视频 整块区域 ===== -->
       <!-- ================================================= -->
-      <section class="section section-video">
+      <section class="section section-video scroll-reveal reveal-flip">
         <div class="video-container">
-          <div class="video-sidebar placeholder-dark"></div>
-          <div class="video-chat placeholder-light"></div>
-          <div class="video-input placeholder-light"></div>
+          <video
+            class="video-bg"
+            src="/video/home_video2.mp4"
+            autoplay
+            loop
+            muted
+            playsinline
+          ></video>
         </div>
       </section>
+
 
 
       <!-- ===== 第 6 格：教育政策整合（像素级复刻） ===== -->
@@ -251,7 +257,7 @@
         <!-- 下半区：政策 + 图 -->
         <div class="edu-policy">
           <!-- 左 -->
-          <div class="policy-left">
+          <div class="policy-left scroll-reveal reveal-left">
             <div class="policy-label">完美融入相應政府策略</div>
             <div class="policy-line"></div>
 
@@ -263,10 +269,11 @@
               完美融入 STEAM、歷史、語文及資訊科技課程，
               並直接對接教育局撥款資源。
             </p>
+            <div class="policy-line"></div>
           </div>
 
           <!-- 右 -->
-          <div class="policy-image"></div>
+          <div class="policy-image scroll-reveal reveal-left"></div>
         </div>
 
       </section>
@@ -285,19 +292,19 @@
   <!-- 大白卡片容器 -->
   <div class="advantages-wrapper">
 
-    <div class="adv-item">
+    <div class="adv-item scroll-reveal reveal-bounce">
       <div class="adv-icon"></div>
       <h3 class="adv-item-title">零代碼，極易上手</h3>
       <p class="adv-item-desc">直觀拖拉介面，3 小時內即可完成作品。</p>
     </div>
 
-    <div class="adv-item">
+    <div class="adv-item scroll-reveal reveal-bounce">
       <div class="adv-icon"></div>
       <h3 class="adv-item-title">跨學科，深度融合</h3>
       <p class="adv-item-desc">支援歷史、文學、IT、視藝等多學科。</p>
     </div>
 
-    <div class="adv-item">
+    <div class="adv-item scroll-reveal reveal-bounce">
       <div class="adv-icon"></div>
       <h3 class="adv-item-title">對政策，善用撥款</h3>
       <p class="adv-item-desc">直接對應 AI 賦能學與教策略。</p>
@@ -316,14 +323,14 @@
 
 <section class="section-cta">
   <div class="cta-inner">
-    <div class="cta-sub">創造專屬的學科機器人</div>
+    <div class="cta-sub scroll-reveal reveal-blur">創造專屬的學科機器人</div>
 
-    <h2 class="cta-title">
+    <h2 class="cta-title scroll-reveal reveal-up">
       試試 ChopReality，<br />
       使用 AI 創造無限的可能性。
     </h2>
 
-    <button class="cta-btn">立即使用</button>
+    <button class="cta-btn scroll-reveal reveal-scale">立即使用</button>
   </div>
 </section>
 
@@ -378,6 +385,16 @@ export default {
     window.addEventListener("resize", this.updateMouthScale);
     this.bindTomatoEvents();
     this.refreshAuth();
+      // ⭐ 把滚动动画放这里
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll(".scroll-reveal").forEach(el => observer.observe(el));
   },
 
     beforeUnmount() {
