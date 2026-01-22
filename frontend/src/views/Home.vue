@@ -22,7 +22,7 @@
       <!-- ================================================= -->
       <!-- ===== GRID 1：Hero（原样保留，不允许修改）===== -->
       <!-- ================================================= -->
-      <section class="section section-hero">
+      <!-- <section class="section section-hero">
         <div class="hero-title">
           <div class="hero-text-block hero-left" style="text-align:right">
             <div class="hero-word">CHOP</div>
@@ -52,14 +52,40 @@
             <div class="hero-word small-blue">Zero-Code AR/VR</div>
           </div>
         </div>
+      </section> -->
+
+      <!-- ================================================= -->
+      <!-- ===== GRID 1：Hero（整图版本）===== -->
+      <!-- ================================================= -->
+      <section class="section section-hero hero-card-shadow">
+
+        <!-- 左上角 LOGO -->
+        <div class="hero-logo-slot">
+          <img src="/assets/choprealitylogo.png" alt="Logo" class="hero-logo-img">
+        </div>
+
+        <div class="tomato-wrapper" ref="tomatoWrapper" style="display:none">
+            <img
+              class="tomato-frame"
+              :src="tomatoFrameSrc"
+              alt="Tomato hero"
+            />
+        </div>
+
+        <!-- 整张 hero 主图（含文字 + 机器人） -->
+        <div class="hero-full-image">
+          <img src="/assets/Tomato_Logo.png" alt="Hero Full" class="hero-main-img">
+        </div>
+
       </section>
+
 
       <!-- ================================================= -->
       <!-- ===== GRID 2：Intro（原样保留，不允许修改）===== -->
       <!-- ================================================= -->
       
       <section class="hero-info-section">
-        <div class="hero-info-title">專為教育而設</div>
+        <div class="hero-info-title">專為學習而設</div>
 
         <p class="hero-info-text">
           Chopreality 是一個無需編程的AI 藝術創作平台，讓師生在零基礎下也能輕鬆一站式創作不同AI作品，製作出用於教學或展示的互動作品。<br />
@@ -166,8 +192,7 @@
           <!-- 顶部标题行 -->
           <div class="tools-header">
             <h2 class="tools-title">
-              使用豐富的<br />
-              AI設計工具
+              使用豐富的AI設計工具
             </h2>
 
             <button class="tools-more">
@@ -180,7 +205,9 @@
 
             <!-- 工具 1 -->
             <div class="tool-card scroll-reveal reveal-scale">
-              <div class="tool-icon gradient-a"></div>
+              <div class="tool-icon gradient-b">
+                  <img src="/assets/human.png" class="tool-icon-img" />
+              </div>
               <div class="tool-text">
                 <div class="tool-name">數字人生成工具</div>
                 <div class="tool-desc">能與你互動的虛擬角色</div>
@@ -189,16 +216,21 @@
 
             <!-- 工具 2 -->
             <div class="tool-card scroll-reveal reveal-scale">
-              <div class="tool-icon gradient-b"></div>
+              <div class="tool-icon gradient-b">
+                  <img src="/assets/chair.png" class="tool-icon-img" />
+              </div>
               <div class="tool-text">
                 <div class="tool-name">圖像生成工具</div>
                 <div class="tool-desc">用 AI 生成你想像的圖片</div>
               </div>
             </div>
 
+
             <!-- 工具 3 -->
             <div class="tool-card scroll-reveal reveal-scale">
-              <div class="tool-icon gradient-c"></div>
+              <div class="tool-icon gradient-b">
+                  <img src="/assets/images.png" class="tool-icon-img" />
+              </div>
               <div class="tool-text">
                 <div class="tool-name">視頻生成工具</div>
                 <div class="tool-desc">用 AI 製作短片及動畫</div>
@@ -207,7 +239,9 @@
 
             <!-- 工具 4 -->
             <div class="tool-card scroll-reveal reveal-scale">
-              <div class="tool-icon gradient-d"></div>
+              <div class="tool-icon gradient-b">
+                  <img src="/assets/huatong.png" class="tool-icon-img" />
+              </div>
               <div class="tool-text">
                 <div class="tool-name">音頻生成工具</div>
                 <div class="tool-desc">用 AI 生成角色的聲音</div>
@@ -221,11 +255,11 @@
       <!-- ================================================= -->
       <!-- ===== GRID 5：视频 整块区域 ===== -->
       <!-- ================================================= -->
-      <section class="section section-video scroll-reveal reveal-flip">
+      <section class="section section-video scroll-reveal">
         <div class="video-container">
           <video
             class="video-bg"
-            src="/video/home_video2.mp4"
+            src="/video/home_video.mp4"
             autoplay
             loop
             muted
@@ -261,7 +295,9 @@
             <div class="policy-label">完美融入相應政府策略</div>
             <div class="policy-line"></div>
 
-            <div class="policy-logo"></div>
+            <div class="policy-logo">
+              <img src="/assets/choprealitylogo.png" alt="Policy Left" class="policy-logo-img" />
+            </div>
 
             <p class="policy-text">
               ChopReality 為香港學校帶來一站式解決方案。師生無需編程背景，
@@ -273,45 +309,53 @@
           </div>
 
           <!-- 右 -->
-          <div class="policy-image scroll-reveal reveal-left"></div>
+          <div class="policy-image scroll-reveal reveal-left">
+            <img src="/assets/Tomato_Robot.png" alt="Policy Right" class="policy-image-img" />
+          </div>
         </div>
 
       </section>
 
-<!-- ================================================= -->
-<!-- ============== GRID 7：三大優勢（像素级）=========== -->
-<!-- ================================================= -->
-<section class="advantages-section">
+      <!-- ================================================= -->
+      <!-- ============== GRID 7：三大優勢（像素级）=========== -->
+      <!-- ================================================= -->
+      <section class="advantages-section">
 
-  <!-- 背景淡字 -->
-  <div class="adv-bg-title">特色功能介紹</div>
+        <!-- 背景淡字 -->
+        <div class="adv-bg-title">特色功能介紹</div>
 
-  <!-- 主标题 -->
-  <h2 class="adv-main-title">三大優勢</h2>
+        <!-- 主标题 -->
+        <h2 class="adv-main-title">三大優勢</h2>
 
-  <!-- 大白卡片容器 -->
-  <div class="advantages-wrapper">
+        <!-- 大白卡片容器 -->
+        <div class="advantages-wrapper">
 
-    <div class="adv-item scroll-reveal reveal-bounce">
-      <div class="adv-icon"></div>
-      <h3 class="adv-item-title">零代碼，極易上手</h3>
-      <p class="adv-item-desc">直觀拖拉介面，3 小時內即可完成作品。</p>
-    </div>
+          <div class="adv-item scroll-reveal reveal-bounce">
+            <div class="adv-icon">
+              <img src="/assets/bbb1.png" class="adv-icon-img" />
+            </div>
+            <h3 class="adv-item-title">零代碼，極易上手</h3>
+            <p class="adv-item-desc">直觀的拖拉式界面，學生在3小時內即可從概念到成品，專注創作而非技術重木。</p>
+          </div>
 
-    <div class="adv-item scroll-reveal reveal-bounce">
-      <div class="adv-icon"></div>
-      <h3 class="adv-item-title">跨學科，深度融合</h3>
-      <p class="adv-item-desc">支援歷史、文學、IT、視藝等多學科。</p>
-    </div>
+          <div class="adv-item scroll-reveal reveal-bounce">
+            <div class="adv-icon">
+              <img src="/assets/bbb3.png" class="adv-icon-img" />
+            </div>
+            <h3 class="adv-item-title">跨學科，深度融合</h3>
+            <p class="adv-item-desc">一個平台即可服務歷史、文學、視藝、IT等多個科目，實現真正的校本課程融合。</p>
+          </div>
 
-    <div class="adv-item scroll-reveal reveal-bounce">
-      <div class="adv-icon"></div>
-      <h3 class="adv-item-title">對政策，善用撥款</h3>
-      <p class="adv-item-desc">直接對應 AI 賦能學與教策略。</p>
-    </div>
+          <div class="adv-item scroll-reveal reveal-bounce">
+            <div class="adv-icon">
+              <img src="/assets/bbb2.png" class="adv-icon-img" />
+            </div>
+            <h3 class="adv-item-title">對政策，善用撥款</h3>
+            <p class="adv-item-desc">課程設計直接對應「AI賦能學與教」策略，是申請與實踐 「智啟學教」撥款的理想方案。</p>
+          </div>
 
-  </div>
-</section>
+        </div>
+      </section>
 
 
       <!-- ================================================= -->
@@ -321,18 +365,54 @@
         由香港理工大學碩士團隊開發｜香港科技園孵化夥伴
       </section>
 
-<section class="section-cta">
-  <div class="cta-inner">
-    <div class="cta-sub scroll-reveal reveal-blur">創造專屬的學科機器人</div>
+      <section class="section-cta">
+        <div class="cta-inner">
+          <div class="cta-sub scroll-reveal reveal-blur">創造專屬的學科機器人</div>
 
-    <h2 class="cta-title scroll-reveal reveal-up">
-      試試 ChopReality，<br />
-      使用 AI 創造無限的可能性。
-    </h2>
+          <h2 class="cta-title scroll-reveal reveal-up">
+            試試 ChopReality，<br />
+            使用 AI 創造無限的可能性。
+          </h2>
 
-    <button class="cta-btn scroll-reveal reveal-scale">立即使用</button>
-  </div>
-</section>
+          <button class="cta-btn scroll-reveal reveal-scale">立即使用</button>
+        </div>
+      </section>
+
+      <!-- ================================================= -->
+      <!-- ===== GRID 9：Footer Contact（像素级复刻）===== -->
+      <!-- ================================================= -->
+      <section class="footer-contact-section scroll-reveal">
+
+        <div class="footer-contact-card">
+
+          <!-- Column 1 -->
+          <div class="footer-col">
+            <div class="footer-label">Call</div>
+            <div class="footer-value">+882 68257218</div>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="footer-col">
+            <div class="footer-label">Email</div>
+            <div class="footer-value">info@chopreality.com</div>
+          </div>
+
+          <!-- Column 3 -->
+          <div class="footer-col">
+            <div class="footer-label">Follow</div>
+
+            <div class="footer-icons">
+              <img src="/assets/facebook.png" class="footer-icon" style="  width: 30px; height: 30px;" />
+              <!-- <img src="/assets/twitter.png" class="footer-icon" style="  width: 45px; height: 35px;"/> -->
+              <!-- <img src="/assets/icon_linkedin.png" class="footer-icon" />
+              <img src="/assets/icon_instagram.png" class="footer-icon" /> -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
 
     </div>
   </div>
