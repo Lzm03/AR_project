@@ -143,11 +143,11 @@ onMounted(async () => {
   bgStyle.value = {
     background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
-  const q = route.query.q;
-  if (q) {
-    prompt.value = q;
-    await send();      
-  }
+  // const q = route.query.q;
+  // if (q) {
+  //   prompt.value = q;
+  //   await send();      
+  // }
 });
 
 /* ================= 3D 动画 ================= */
