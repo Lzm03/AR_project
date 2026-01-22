@@ -198,13 +198,7 @@ async function send() {
   if (!character.value) return;
 
   const myId = ++requestId;
-  // 如果是因为打断语音刚开麦 → 只跳过一次发送
-  if (blockSendOnce) {
-    blockSendOnce = false;  // ⚡ 自动恢复，不再永远阻塞
-    return;
-  }
-
-  if (isLocked.value) return;
+  if (blockSendOnce || isLocked.value) return;
 
   isLocked.value = true;
   interrupt();
@@ -254,15 +248,9 @@ function onEnter() {
 
 /* ================= 麦克风 + WS ================= */
 async function toggleMic() {
-  // blockSendOnce = isLocked.value;
-  // if (isLocked.value) requestId++;
-  // 如果当前正在播放语音 → 这次语音开麦会阻止自动发送（避免冲突）
-  if (isLocked.value) {
-    blockSendOnce = true;
-    requestId++;   // 终止当前请求
-  } else {
-    blockSendOnce = false;  // 平时开麦不阻止发送
-  }
+  blockSendOnce = isLocked.value;
+  if (isLocked.value) requestId++;
+
   forceInterrupt();
 
   if (isRecording.value) {
