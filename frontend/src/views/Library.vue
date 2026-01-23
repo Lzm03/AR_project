@@ -147,11 +147,7 @@ export default {
         id: c.id,
         name: c.name || "Untitled Character",
 
-        model: c.model?.idle
-      ? (c.model.idle.startsWith("http")
-          ? c.model.idle
-          : this.API_BASE + c.model.idle)
-      : null,
+        model: c.model?.idle ? this.API_BASE + c.model.idle : null,
 
         createdAt: c.createdAt
           ? new Date(c.createdAt).toLocaleString()
