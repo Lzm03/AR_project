@@ -2,23 +2,26 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma/client.js";
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * ⚠️ 验证码仍然用内存（注册完成即失效，OK 的）
  */
 const codes = new Map();
 
-/* ===== send verification code ===== */
+
+/* ===== send verification code (Resend版本) ===== */
 export async function sendCode(email) {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // 保存/更新验证码
+  // 保存验证码到数据库
   await prisma.verifyCode.upsert({
     where: { email },
     update: {
       code,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 10), // 10 minutes
+      expiresAt: new Date(Date.now() + 1000 * 60 * 10), // 10 分钟
     },
     create: {
       email,
@@ -27,19 +30,9 @@ export async function sendCode(email) {
     },
   });
 
-  // Gmail SMTP
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS, // Gmail app password
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"CHOP Reality" <${process.env.SMTP_USER}>`,
+  // Resend 发邮件
+  await resend.emails.send({
+    from: process.env.RESEND_FROM,
     to: email,
     subject: "Your CHOP Reality Verification Code",
     html: `
@@ -53,7 +46,7 @@ export async function sendCode(email) {
     `,
   });
 }
-/* ===== signup ===== */
+
 /* ===== signup ===== */
 export async function signup(email, password, code) {
   const record = await prisma.verifyCode.findUnique({
