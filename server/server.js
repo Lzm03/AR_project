@@ -115,9 +115,11 @@ export function startServer() {
   app.use(cookieParser());
 
   /* ===== 🔥 关键：一定要在最前面暴露 public ===== */
-  console.log("📂 Public dir:", PUBLIC_DIR);
+  // console.log("📂 Public dir:", PUBLIC_DIR);
+  // app.use(express.static(PUBLIC_DIR));
+  // 访问 /characters/... → PUBLIC_DIR/characters/...
+  app.use("/characters", express.static(path.join(PUBLIC_DIR, "characters")));
   app.use(express.static(PUBLIC_DIR));
-
 
   /* ===== API ===== */
   app.use("/api/auth", authRouter);
