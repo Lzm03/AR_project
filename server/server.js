@@ -86,7 +86,6 @@
 
 
 // server.js
-// server.js
 import http from "http";
 import express from "express";
 import cors from "cors";
@@ -125,7 +124,6 @@ export function startServer() {
   app.use("/api/characters", charactersRouter);
   app.use("/api/chat", chatRouter);
   app.use("/api/library", libraryRouter);
-
   app.get("/", (_, res) => res.send("OK"));
 
   /* ===== WS ===== */
@@ -137,5 +135,4 @@ export function startServer() {
   server.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
-
 }
