@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma/client.js";
+import nodemailer from "nodemailer";
+
 
 /**
  * ⚠️ 验证码仍然用内存（注册完成即失效，OK 的）
@@ -8,17 +10,58 @@ import { prisma } from "../prisma/client.js";
 const codes = new Map();
 
 /* ===== send verification code ===== */
-export function sendCode(email) {
+export async function sendCode(email) {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  codes.set(email, code);
-  console.log(`📨 [DEV] verification code for ${email}: ${code}`);
-}
 
+  // 保存/更新验证码
+  await prisma.verifyCode.upsert({
+    where: { email },
+    update: {
+      code,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 10), // 10 minutes
+    },
+    create: {
+      email,
+      code,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 10),
+    },
+  });
+
+  // Gmail SMTP
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS, // Gmail app password
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"CHOP Reality" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Your CHOP Reality Verification Code",
+    html: `
+      <div style="font-family:Arial;padding:20px;">
+        <h2>Your verification code</h2>
+        <p style="font-size:22px;font-weight:bold;letter-spacing:2px;">
+          ${code}
+        </p>
+        <p>This code is valid for <b>10 minutes</b>.</p>
+      </div>
+    `,
+  });
+}
+/* ===== signup ===== */
 /* ===== signup ===== */
 export async function signup(email, password, code) {
-  const saved = codes.get(email);
-  if (!saved || saved !== code) {
-    throw new Error("Invalid verification code");
+  const record = await prisma.verifyCode.findUnique({
+    where: { email },
+  });
+
+  if (!record || record.code !== code || record.expiresAt < new Date()) {
+    throw new Error("Invalid or expired verification code");
   }
 
   const exists = await prisma.user.findUnique({
@@ -37,8 +80,12 @@ export async function signup(email, password, code) {
     },
   });
 
-  codes.delete(email);
+  // 删除验证码
+  await prisma.verifyCode.delete({
+    where: { email },
+  });
 }
+
 
 /* ===== login ===== */
 export async function login(email, password) {

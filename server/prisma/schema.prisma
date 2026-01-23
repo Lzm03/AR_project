@@ -57,3 +57,10 @@ model Character {
   libraryItem LibraryItem?
 }
 
+model VerifyCode {
+  email     String   @id
+  code      String
+  expiresAt DateTime
+}
+
+
