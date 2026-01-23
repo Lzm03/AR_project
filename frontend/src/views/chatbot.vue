@@ -143,9 +143,6 @@ onMounted(async () => {
   bgStyle.value = {
     background: `url(${character.value.scene.bg}) center / cover no-repeat`
   };
-  console.log("bg from API:", character.value.scene.bg)
-  console.log("idle:", character.value.model.idle)
-
   const q = route.query.q;
   if (q) {
     prompt.value = q;
