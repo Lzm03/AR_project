@@ -15,6 +15,7 @@ import { getUserBySession } from "../services/auth.service.js";
 
 const router = express.Router();
 const upload = multer({ dest: "tmp/" });
+const API_BASE = process.env.API_BASE;  // 你 Railway 的域名
 
 router.post(
   "/",
@@ -46,7 +47,7 @@ router.post(
     const move = (file, filename) => {
       const target = path.join(baseDir, filename);
       fs.renameSync(file.path, target);
-      return `/characters/${id}/${filename}`;
+      return `${API_BASE}/characters/${id}/${filename}`;
     };
 
     // 1️⃣ 写 Character 表
