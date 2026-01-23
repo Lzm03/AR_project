@@ -46,7 +46,7 @@ router.post(
     const move = (file, filename) => {
       const target = path.join(baseDir, filename);
       fs.renameSync(file.path, target);
-      return `/public/characters/${id}/${filename}`;
+      return `/characters/${id}/${filename}`;
     };
 
     // 1️⃣ 写 Character 表
@@ -89,6 +89,12 @@ router.get("/:id", async (req, res) => {
     id: c.id,
     name: c.name,
     prompt: c.prompt,
+
+    // 旧字段
+    idleModel: c.idleModel,
+    talkModel: c.talkModel,
+    bgImage: c.bgImage,
+    voiceId: c.voiceId,
 
     model: {
       idle: c.idleModel,
