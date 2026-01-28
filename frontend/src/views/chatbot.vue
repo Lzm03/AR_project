@@ -194,6 +194,50 @@ function forceInterrupt() {
 }
 
 /* ================= 聊天 ================= */
+// async function send() {
+//   if (!character.value) return;
+
+//   const myId = ++requestId;
+//   if (blockSendOnce || isLocked.value) return;
+
+//   isLocked.value = true;
+//   interrupt();
+
+//   const text = prompt.value.trim();
+//   if (!text) {
+//     unlock();
+//     return;
+//   }
+
+//   prompt.value = "";
+//   addMsg("你", text);
+
+//   const res = await fetch(`${API_BASE}/api/chat`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       prompt: text,
+//       characterId
+//     })
+//   });
+
+//   const data = await res.json();
+//   if (myId !== requestId) return;
+
+//   addMsg(character.value.name || "AI", data.text, true);
+
+//   if (data.audioBase64) {
+//     const src = "data:audio/mp3;base64," + data.audioBase64;
+
+//     currentAudio = new Audio(src);
+//     playTalk();
+//     currentAudio.play();
+//     currentAudio.onended = unlock;
+//   } else {
+//     unlock();
+//   }
+// }
+
 async function send() {
   if (!character.value) return;
 
@@ -212,6 +256,13 @@ async function send() {
   prompt.value = "";
   addMsg("你", text);
 
+  // AI 消息容器（我们要增量填充）
+  const aiName = character.value.name || "AI";
+  addMsg(aiName, ""); // 创建空消息
+  const msgList = chatEl.value.querySelectorAll(".msg.ai");
+  const currentMsg = msgList[msgList.length - 1];
+
+  // 开始流式请求
   const res = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -221,22 +272,53 @@ async function send() {
     })
   });
 
-  const data = await res.json();
-  if (myId !== requestId) return;
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
 
-  addMsg(character.value.name || "AI", data.text, true);
+  let fullText = "";
 
-  if (data.audioBase64) {
-    const src = "data:audio/mp3;base64," + data.audioBase64;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
 
-    currentAudio = new Audio(src);
-    playTalk();
-    currentAudio.play();
-    currentAudio.onended = unlock;
-  } else {
-    unlock();
+    const chunk = decoder.decode(value);
+    const lines = chunk.split("\n").filter(l => l.startsWith("data:"));
+
+    for (const line of lines) {
+      const raw = line.replace("data:", "").trim();
+
+      if (!raw || raw === "[DONE]") continue;
+
+      try {
+        // token 文本（普通 data 并不是 JSON）
+        if (raw[0] !== "{") {
+          fullText += raw;
+          currentMsg.textContent = `${aiName}：${fullText}`;
+          chatEl.value.scrollTop = chatEl.value.scrollHeight;
+          playTalk();
+          continue;
+        }
+
+        // done 阶段：包含 JSON
+        const json = JSON.parse(raw);
+
+        if (json.audioBase64) {
+          const src = "data:audio/mp3;base64," + json.audioBase64;
+          currentAudio = new Audio(src);
+          currentAudio.play();
+          currentAudio.onended = unlock;
+        } else {
+          unlock();
+        }
+      } catch (err) {
+        console.warn("解析流失败：", err);
+      }
+    }
   }
+
+  playIdle();
 }
+
 
 function onSendClick() {
   isLocked.value ? forceInterrupt() : send();
