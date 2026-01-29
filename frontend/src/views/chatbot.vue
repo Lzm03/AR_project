@@ -202,7 +202,6 @@ async function send() {
 
   isLocked.value = true;
   interrupt();
-  playThinkingSound();
 
 
   const text = prompt.value.trim();
