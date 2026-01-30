@@ -239,7 +239,15 @@ async function send() {
   }
 }
 
+function unlockAudio() {
+  const silent = new Audio(
+    "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAA"
+  );
+  silent.play().catch(() => {});
+}
+
 function onSendClick() {
+  unlockAudio(); 
   isLocked.value ? forceInterrupt() : send();
 }
 
@@ -249,6 +257,7 @@ function onEnter() {
 
 /* ================= 麦克风 + WS ================= */
 async function toggleMic() {
+  unlockAudio();
   blockSendOnce = isLocked.value;
   if (isLocked.value) requestId++;
 
@@ -264,7 +273,13 @@ async function toggleMic() {
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-  recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+  // recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+  const mime = MediaRecorder.isTypeSupported("audio/webm")
+  ? "audio/webm"
+  : "audio/mp4";
+  
+recorder = new MediaRecorder(stream, { mimeType: mime });
+
   recorder.ondataavailable = e => {
     if (!e.data || e.data.size === 0) return;
     if (socket && socket.readyState === WebSocket.OPEN) {
