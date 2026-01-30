@@ -32,12 +32,12 @@ export async function synthesizeSpeech(text, voiceId) {
 
       audio_setting: {
         format: "mp3",
-        sample_rate: 32000,
+        sample_rate: 44100,
         bitrate: 128000,
         channel: 1,
       },
 
-      output_format: "hex",
+      output_format: "base64",
     },
     {
       headers: {
