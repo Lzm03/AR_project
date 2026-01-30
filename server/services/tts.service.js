@@ -37,7 +37,7 @@ export async function synthesizeSpeech(text, voiceId) {
         channel: 1,
       },
 
-      output_format: "base64",
+      output_format: "hex",
     },
     {
       headers: {
