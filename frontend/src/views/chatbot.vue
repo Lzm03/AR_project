@@ -227,17 +227,45 @@ async function send() {
 
   addMsg(character.value.name || "AI", data.text, true);
 
-  if (data.audioBase64) {
-    const src = "data:audio/mp3;base64," + data.audioBase64;
+//   if (data.audioBase64) {
+//     const src = "data:audio/mp3;base64," + data.audioBase64;
 
-    currentAudio = new Audio(src);
-    playTalk();
-    currentAudio.play();
-    currentAudio.onended = unlock;
-  } else {
-    unlock();
+//     currentAudio = new Audio(src);
+//     playTalk();
+//     currentAudio.play();
+//     currentAudio.onended = unlock;
+//   } else {
+//     unlock();
+//   }
+// }
+
+if (data.audioBase64) {
+  const byteString = atob(data.audioBase64);
+  const bytes = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    bytes[i] = byteString.charCodeAt(i);
   }
+
+  const blob = new Blob([bytes], { type: "audio/mp3" });
+  const url = URL.createObjectURL(blob);
+
+  currentAudio = new Audio();
+  currentAudio.src = url;
+
+  playTalk();
+
+  currentAudio.play().catch(err => {
+    console.warn("iOS playback blocked:", err);
+  });
+
+  currentAudio.onended = () => {
+    URL.revokeObjectURL(url);
+    unlock();
+  };
+} else {
+  unlock();
 }
+
 
 function unlockAudio() {
   const silent = new Audio(
