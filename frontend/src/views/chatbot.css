@@ -168,3 +168,38 @@ model-viewer {
   font-size: 20px;
   padding: 8px 16px;
 }
+
+/* ===== 手机竖屏模式（宽度小于 768px）===== */
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column; /* 上下排布 */
+  }
+
+  #vr {
+    flex: none;
+    height: 45vh; /* 上半部分显示模型 */
+    width: 100%;
+  }
+
+  #panel {
+    width: 100%;
+    height: 55vh; /* 下半部分是聊天面板 */
+  }
+
+  #chat {
+    padding: 12px;
+  }
+
+  #input {
+    padding: 12px;
+  }
+
+  #micWrapper {
+    width: 50px;
+    height: 50px;
+  }
+
+  #sendBtn {
+    padding: 8px 12px;
+  }
+}
